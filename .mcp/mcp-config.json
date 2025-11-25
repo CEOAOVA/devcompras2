@@ -1,0 +1,85 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-supabase"],
+      "env": {
+        "SUPABASE_URL": "${SUPABASE_URL}",
+        "SUPABASE_SERVICE_ROLE_KEY": "${SUPABASE_SERVICE_ROLE_KEY}",
+        "SUPABASE_SCHEMA": "${SUPABASE_SCHEMA}"
+      },
+      "resources": [
+        "supabase://datasets",
+        "supabase://insights",
+        "supabase://chat_conversations",
+        "supabase://chat_messages",
+        "supabase://data_embeddings",
+        "supabase://ml_models",
+        "supabase://analysis_cache"
+      ],
+      "tools": [
+        "query_table",
+        "insert_row",
+        "update_row",
+        "delete_row",
+        "execute_sql",
+        "list_tables",
+        "describe_table"
+      ],
+      "description": "MCP Server para interactuar con Supabase PostgreSQL"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\Moises\\Documents\\TRABAJO\\aova\\embler\\devcompras2\\emblerecosistema\\dev-optimizacionembler\\data"
+      ],
+      "env": {},
+      "resources": [
+        "file://uploads",
+        "file://exports",
+        "file://samples"
+      ],
+      "tools": [
+        "read_file",
+        "write_file",
+        "list_directory",
+        "search_files",
+        "move_file"
+      ],
+      "description": "MCP Server para acceso al sistema de archivos local"
+    },
+    "custom-analytics": {
+      "command": "node",
+      "args": ["./mcp-servers/analytics-server.js"],
+      "env": {
+        "ML_SERVICE_URL": "${ML_API_URL}"
+      },
+      "resources": [
+        "analytics://predictions",
+        "analytics://models",
+        "analytics://training-jobs"
+      ],
+      "tools": [
+        "train_model",
+        "predict_demand",
+        "evaluate_model",
+        "get_feature_importance",
+        "analyze_dataset"
+      ],
+      "description": "MCP Server personalizado para servicios de ML y analytics"
+    }
+  },
+  "config": {
+    "version": "1.0.0",
+    "description": "Configuración MCP para Embler GenAI Platform",
+    "autoStart": true,
+    "reconnectDelay": 5000,
+    "maxReconnectAttempts": 3,
+    "logging": {
+      "level": "info",
+      "file": "./logs/mcp.log"
+    }
+  }
+}

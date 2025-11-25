@@ -1,0 +1,25 @@
+{
+  "name": "embler-mcp-servers",
+  "version": "1.0.0",
+  "description": "Custom MCP servers for Embler GenAI Platform",
+  "main": "analytics-server.js",
+  "scripts": {
+    "start:analytics": "node analytics-server.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "analytics",
+    "machine-learning"
+  ],
+  "author": "Embler Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "axios": "^1.6.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

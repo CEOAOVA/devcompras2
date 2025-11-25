@@ -1,0 +1,112 @@
+{
+  "success": true,
+  "periodo": {
+    "fechaInicio": "2025-11-17",
+    "fechaFin": "2025-11-24"
+  },
+  "performance": {
+    "countMs": 8562,
+    "selectMs": 8726,
+    "totalRegistros": 1770
+  },
+  "kpis": {
+    "totalTransacciones": 10,
+    "ingresosTotales": 11404.867585,
+    "margenTotal": 0,
+    "promedioVenta": 1140.4867585,
+    "tiendasUnicas": 6,
+    "skusUnicos": 10
+  },
+  "muestra": [
+    {
+      "fecha": "2025-11-22",
+      "hora": "1970-01-01T20:05:08.565Z",
+      "tiendaId": "QRO",
+      "ticketId": "EY387",
+      "sku": "78102200GE-1",
+      "cantidad": 1,
+      "precioUnitario": 129.310345,
+      "descuento": 0,
+      "impuesto": 150,
+      "costoUnitario": 0,
+      "canal": null,
+      "vendedorId": "DGQ",
+      "clienteId": null,
+      "margenUnitario": 0,
+      "total": 279.310345,
+      "margenTotal": 0
+    },
+    {
+      "fecha": "2025-11-22",
+      "hora": "1970-01-01T20:02:19.262Z",
+      "tiendaId": "IZT",
+      "ticketId": "LT1301",
+      "sku": "11428570590 *5",
+      "cantidad": 1,
+      "precioUnitario": 358.62069,
+      "descuento": 0,
+      "impuesto": 416,
+      "costoUnitario": 0,
+      "canal": null,
+      "vendedorId": "AE",
+      "clienteId": null,
+      "margenUnitario": 0,
+      "total": 774.62069,
+      "margenTotal": 0
+    },
+    {
+      "fecha": "2025-11-22",
+      "hora": "1970-01-01T20:02:19.262Z",
+      "tiendaId": "IZT",
+      "ticketId": "LT1301",
+      "sku": "12120040551 *5",
+      "cantidad": 3,
+      "precioUnitario": 172.413793,
+      "descuento": 0,
+      "impuesto": 200,
+      "costoUnitario": 0,
+      "canal": null,
+      "vendedorId": "AE",
+      "clienteId": null,
+      "margenUnitario": 0,
+      "total": 717.241379,
+      "margenTotal": 0
+    },
+    {
+      "fecha": "2025-11-22",
+      "hora": "1970-01-01T19:57:17.551Z",
+      "tiendaId": "CUAU",
+      "ticketId": "KO979",
+      "sku": "ACSIN5W301 *4",
+      "cantidad": 1,
+      "precioUnitario": 180.172414,
+      "descuento": 0,
+      "impuesto": 209,
+      "costoUnitario": 0,
+      "canal": null,
+      "vendedorId": "CP",
+      "clienteId": null,
+      "margenUnitario": 0,
+      "total": 389.172414,
+      "margenTotal": 0
+    },
+    {
+      "fecha": "2025-11-22",
+      "hora": "1970-01-01T19:56:22.160Z",
+      "tiendaId": "PORT",
+      "ticketId": "EN485",
+      "sku": "2203304411 *1",
+      "cantidad": 1,
+      "precioUnitario": 1081.04,
+      "descuento": 0,
+      "impuesto": 1254,
+      "costoUnitario": 0,
+      "canal": null,
+      "vendedorId": "JR",
+      "clienteId": null,
+      "margenUnitario": 0,
+      "total": 2335.04,
+      "margenTotal": 0
+    }
+  ]
+}

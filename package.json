@@ -1,0 +1,38 @@
+{
+  "name": "embler-platform",
+  "version": "1.0.0",
+  "description": "Plataforma integral de gestión de inventario y logística inteligente",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "backend/*",
+    "mobile-apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:shell\" \"npm run dev:analytics\" \"npm run dev:api\"",
+    "dev:shell": "npm run dev --workspace=apps/shell-app",
+    "dev:analytics": "npm run dev --workspace=apps/analytics-module",
+    "dev:api": "npm run dev --workspace=backend/api-gateway",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up",
+    "setup": "npm install && npm run build"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+} 

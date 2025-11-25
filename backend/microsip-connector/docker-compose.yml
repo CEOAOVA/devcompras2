@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  firebird-connector:
+    image: node:18-slim
+    container_name: firebird-microsip-connector
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - FIREBIRD_HOST=${FIREBIRD_HOST}
+      - FIREBIRD_PORT=${FIREBIRD_PORT:-3050}
+      - FIREBIRD_DATABASE=${FIREBIRD_DATABASE}
+      - FIREBIRD_USER=${FIREBIRD_USER}
+      - FIREBIRD_PASSWORD=${FIREBIRD_PASSWORD}
+      - PORT=${PORT:-3001}
+      - API_KEY=${API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - CACHE_TTL=${CACHE_TTL:-1800}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    command: sh -c "npm install && npm start"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - microsip-network
+
+networks:
+  microsip-network:
+    driver: bridge

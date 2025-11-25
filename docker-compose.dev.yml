@@ -1,0 +1,224 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: embler_postgres_dev
+    environment:
+      POSTGRES_USER: embler_user
+      POSTGRES_PASSWORD: embler_password
+      POSTGRES_DB: embler_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - embler_network
+
+  # Redis para caché y sesiones
+  redis:
+    image: redis:7-alpine
+    container_name: embler_redis_dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - embler_network
+
+  # API Gateway (Backend principal)
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile.dev
+    container_name: embler_api_dev
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://embler_user:embler_password@postgres:5432/embler_db?schema=embler
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-super-secret-key
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SCHEMA: embler
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+    volumes:
+      - ./backend/api-gateway:/app
+      - /app/node_modules
+      - ./data:/app/data
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - embler_network
+    command: npm run dev
+
+  # Servicio de Machine Learning
+  ml-service:
+    build:
+      context: ./ml-models
+      dockerfile: Dockerfile.dev
+    container_name: embler_ml_dev
+    ports:
+      - "8001:8001"
+    environment:
+      PYTHONPATH: /app
+      API_HOST: 0.0.0.0
+      API_PORT: 8001
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://embler_user:embler_password@postgres:5432/embler_db?schema=embler
+    volumes:
+      - ./ml-models:/app
+      - ./data:/app/data
+      - ./ml-models/models:/app/models
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - embler_network
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8001 --reload
+
+  # Shell App (Frontend principal)
+  shell-app:
+    build:
+      context: ./apps/shell-app
+      dockerfile: Dockerfile.dev
+    container_name: embler_shell_dev
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      REACT_APP_API_URL: http://localhost:3001
+      REACT_APP_ML_API_URL: http://localhost:8001
+      REACT_APP_SUPABASE_URL: ${SUPABASE_URL}
+      REACT_APP_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      REACT_APP_SUPABASE_SCHEMA: embler
+      REACT_APP_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+    volumes:
+      - ./apps/shell-app:/app
+      - /app/node_modules
+    networks:
+      - embler_network
+    command: npm run dev
+
+  # Módulo de Analítica
+  analytics-module:
+    build:
+      context: ./apps/analytics-module
+      dockerfile: Dockerfile.dev
+    container_name: embler_analytics_dev
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      REACT_APP_API_URL: http://localhost:3001
+      REACT_APP_ML_API_URL: http://localhost:8001
+    volumes:
+      - ./apps/analytics-module:/app
+      - /app/node_modules
+    networks:
+      - embler_network
+    command: npm run dev
+
+  # Módulo de Logística
+  logistics-module:
+    build:
+      context: ./apps/logistics-module
+      dockerfile: Dockerfile.dev
+    container_name: embler_logistics_dev
+    ports:
+      - "3003:3003"
+    environment:
+      NODE_ENV: development
+      REACT_APP_API_URL: http://localhost:3001
+      REACT_APP_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+    volumes:
+      - ./apps/logistics-module:/app
+      - /app/node_modules
+    networks:
+      - embler_network
+    command: npm run dev
+
+  # Nginx para desarrollo (opcional)
+  nginx:
+    image: nginx:alpine
+    container_name: embler_nginx_dev
+    ports:
+      - "80:80"
+    volumes:
+      - ./infrastructure/nginx/dev.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - shell-app
+      - analytics-module
+      - logistics-module
+      - api-gateway
+    networks:
+      - embler_network
+
+  # Adminer para gestión de base de datos
+  adminer:
+    image: adminer:latest
+    container_name: embler_adminer_dev
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    networks:
+      - embler_network
+
+  # Microsip Connector (ERP Integration)
+  microsip-connector:
+    build:
+      context: ./backend/microsip-connector
+      dockerfile: Dockerfile.dev
+    container_name: embler_microsip_dev
+    ports:
+      - "8003:8003"
+    environment:
+      NODE_ENV: development
+      PORT: 8003
+      FIREBIRD_HOST: ${FIREBIRD_HOST:-192.65.134.78}
+      FIREBIRD_PORT: ${FIREBIRD_PORT:-3050}
+      FIREBIRD_DATABASE: ${FIREBIRD_DATABASE:-C:\Microsip datos\EMBLER.FDB}
+      FIREBIRD_USER: ${FIREBIRD_USER:-ODBC}
+      FIREBIRD_PASSWORD: ${FIREBIRD_PASSWORD:-masterkey}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+    networks:
+      - embler_network
+    command: npm run dev
+
+  # Python Processor (File Processing)
+  python-processor:
+    build:
+      context: ./backend/python-processor
+      target: development
+    container_name: embler_processor_dev
+    ports:
+      - "8002:8000"
+    environment:
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_ANON_KEY}
+      MAX_FILE_SIZE: 10485760
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+    volumes:
+      - ./backend/python-processor:/app
+      - ./backend/python-processor/uploads:/app/uploads
+    networks:
+      - embler_network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
+  redis_data:
+
+
+networks:
+  embler_network:
+    driver: bridge

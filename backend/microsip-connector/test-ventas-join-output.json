@@ -1,0 +1,142 @@
+{
+  "fecha_prueba": "2025-11-24T03:27:29.821Z",
+  "periodo": {
+    "fechaInicio": "2025-11-17",
+    "fechaFin": "2025-11-24"
+  },
+  "resultados": {
+    "vw_fact_ventas": {
+      "tiempo_ms": 8521,
+      "registros": 10,
+      "muestra": [
+        {
+          "FECHA": "2025-11-22T06:00:00.000Z",
+          "HORA": "1970-01-01T20:05:08.565Z",
+          "TIENDA_ID": "QRO",
+          "TICKET_ID": "EY387",
+          "SKU": "78102200GE-1",
+          "CANTIDAD": 1,
+          "PRECIO_UNITARIO": 129.310345,
+          "DESCUENTO": 0,
+          "IMPUESTO": 150,
+          "COSTO_UNITARIO": 0,
+          "CANAL": "",
+          "VENDEDOR_ID": "DGQ",
+          "CLIENTE_ID": null,
+          "MARGEN_UNITARIO": 0
+        },
+        {
+          "FECHA": "2025-11-22T06:00:00.000Z",
+          "HORA": "1970-01-01T20:02:19.262Z",
+          "TIENDA_ID": "IZT",
+          "TICKET_ID": "LT1301",
+          "SKU": "11428570590 *5",
+          "CANTIDAD": 1,
+          "PRECIO_UNITARIO": 358.62069,
+          "DESCUENTO": 0,
+          "IMPUESTO": 416,
+          "COSTO_UNITARIO": 0,
+          "CANAL": "",
+          "VENDEDOR_ID": "AE",
+          "CLIENTE_ID": null,
+          "MARGEN_UNITARIO": 0
+        },
+        {
+          "FECHA": "2025-11-22T06:00:00.000Z",
+          "HORA": "1970-01-01T20:02:19.262Z",
+          "TIENDA_ID": "IZT",
+          "TICKET_ID": "LT1301",
+          "SKU": "12120040551 *5",
+          "CANTIDAD": 3,
+          "PRECIO_UNITARIO": 172.413793,
+          "DESCUENTO": 0,
+          "IMPUESTO": 200,
+          "COSTO_UNITARIO": 0,
+          "CANAL": "",
+          "VENDEDOR_ID": "AE",
+          "CLIENTE_ID": null,
+          "MARGEN_UNITARIO": 0
+        }
+      ]
+    },
+    "doctos_pv_join": {
+      "tiempo_ms": 771,
+      "registros": 10,
+      "muestra": [
+        {
+          "DOCTO_PV_ID": 10672012,
+          "TICKET": "ZE0000480",
+          "FECHA_VENTA": "2025-11-22T06:00:00.000Z",
+          "TIENDA_ID": 1273524,
+          "CLIENTE_ID": 1319210,
+          "VENDEDOR_ID": null,
+          "ALMACEN_ID": null,
+          "DOCTO_PV_DET_ID": 10672017,
+          "ARTICULO_ID": 309582,
+          "SKU": "108944 motul",
+          "CANTIDAD": 5,
+          "CANTIDAD_DEVUELTA": 0,
+          "PRECIO_UNITARIO": 180.172414,
+          "PRECIO_CON_IVA": 209,
+          "IMPUESTO": 0,
+          "TOTAL_PARTIDA": 900.86,
+          "CATEGORIA_ID": 3035,
+          "CANTIDAD_NETA": 5
+        },
+        {
+          "DOCTO_PV_ID": 10672012,
+          "TICKET": "ZE0000480",
+          "FECHA_VENTA": "2025-11-22T06:00:00.000Z",
+          "TIENDA_ID": 1273524,
+          "CLIENTE_ID": 1319210,
+          "VENDEDOR_ID": null,
+          "ALMACEN_ID": null,
+          "DOCTO_PV_DET_ID": 10672013,
+          "ARTICULO_ID": 218234,
+          "SKU": "11428575211 *1",
+          "CANTIDAD": 1,
+          "CANTIDAD_DEVUELTA": 0,
+          "PRECIO_UNITARIO": 174.137931,
+          "PRECIO_CON_IVA": 202,
+          "IMPUESTO": 0,
+          "TOTAL_PARTIDA": 174.14,
+          "CATEGORIA_ID": 3046,
+          "CANTIDAD_NETA": 1
+        },
+        {
+          "DOCTO_PV_ID": 10672012,
+          "TICKET": "ZE0000480",
+          "FECHA_VENTA": "2025-11-22T06:00:00.000Z",
+          "TIENDA_ID": 1273524,
+          "CLIENTE_ID": 1319210,
+          "VENDEDOR_ID": null,
+          "ALMACEN_ID": null,
+          "DOCTO_PV_DET_ID": 10672014,
+          "ARTICULO_ID": 1119537,
+          "SKU": "13718577171 *1",
+          "CANTIDAD": 1,
+          "CANTIDAD_DEVUELTA": 0,
+          "PRECIO_UNITARIO": 150.862069,
+          "PRECIO_CON_IVA": 175,
+          "IMPUESTO": 0,
+          "TOTAL_PARTIDA": 150.86,
+          "CATEGORIA_ID": 3046,
+          "CANTIDAD_NETA": 1
+        }
+      ]
+    },
+    "comparacion": {
+      "total_vw": 1770,
+      "total_join": 3192,
+      "diferencia": -1422,
+      "count_time_vw": 8402,
+      "count_time_join": 593
+    }
+  },
+  "conclusion": {
+    "join_es_rapido": true,
+    "mejora_porcentaje": 91,
+    "factor_mejora": 11.1,
+    "recomendacion": "Usar JOIN en producción"
+  }
+}

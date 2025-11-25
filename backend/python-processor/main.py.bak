@@ -1,0 +1,682 @@
+from fastapi import FastAPI, UploadFile, File, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, StreamingResponse
+import os
+import tempfile
+import shutil
+import io
+from typing import List, Optional
+from dotenv import load_dotenv
+import logging
+from datetime import datetime
+
+# Import our services
+from services.excel_processor import process_excel_file
+from services.database_manager import create_database_manager
+from services.excel_exporter import create_statistics_excel_export
+
+# Load environment variables from project root
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Helper: normalize type filters (frontend may send English; DB stores Spanish)
+def normalize_type_filter(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return value
+    v = value.strip().lower()
+    # Database stores English terms: 'inventory' and 'sale'
+    # Frontend may send Spanish or English, normalize to English (what's in DB)
+    mapping = {
+        'sale': 'sale',
+        'sales': 'sale', 
+        'ventas': 'sale',
+        'venta': 'sale',
+        'inventory': 'inventory',
+        'inventario': 'inventory',
+        'stock': 'inventory',
+    }
+    return mapping.get(v, v)
+env_path = os.path.join(project_root, '.env')
+load_dotenv(env_path)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Disable verbose HTTP logging for better performance
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+# Create FastAPI app
+app = FastAPI(
+    title="Embler Autopartes Analytics API",
+    description="Excel processing and analytics API for Embler Autopartes",
+    version="1.0.0"
+)
+
+# Configure CORS for React frontend (configurable via env)
+default_cors = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8080",
+]
+
+# Add common LAN IPs used during development
+default_cors.extend([
+    "http://192.168.1.129:8080",
+    "http://192.168.1.129:5173",
+    "http://192.168.0.138:8080",
+    "http://192.168.0.138:5173",
+    "http://10.48.71.214:8080",
+    "http://10.48.71.214:5173",
+])
+
+# Include expected production domains by default
+default_cors.extend([
+    "https://dev-comprasprueba.aova.mx",
+    "https://dev-apicomprasprueba.aova.mx/api/health"
+])
+
+cors_env = os.getenv("CORS_ORIGINS")
+allow_origins = [o.strip() for o in cors_env.split(",") if o.strip()] if cors_env else default_cors
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+async def root():
+    return {"message": "Embler Autopartes Analytics API is running"}
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "service": "embler-autopartes-api"}
+
+@app.post("/api/upload")
+async def upload_excel_file(file: UploadFile = File(...)):
+    """Upload and process an Excel file"""
+    
+    # Validate file type
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(status_code=400, detail="Only Excel files (.xlsx, .xls) are allowed")
+    
+    # Check file size (10MB limit)
+    max_size = int(os.getenv('MAX_FILE_SIZE', 10485760))  # 10MB default
+    
+    try:
+        # Get file size
+        file.file.seek(0, 2)  # Seek to end
+        file_size = file.file.tell()
+        file.file.seek(0)  # Reset to beginning
+        
+        if file_size > max_size:
+            raise HTTPException(status_code=413, detail=f"File too large. Maximum size is {max_size/1024/1024:.1f}MB")
+        
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
+            # Copy uploaded file to temp file
+            shutil.copyfileobj(file.file, temp_file)
+            temp_file_path = temp_file.name
+        
+        # Process the Excel file
+        result = process_excel_file(
+            temp_file_path,
+            db_provider='supabase'
+        )
+        
+        # Handle Excel processing errors with enhanced user-friendly responses
+        if not result.get('success'):
+            error_type = result.get('error_type', 'processing_error')
+            
+            # Determine appropriate HTTP status code based on error type
+            if error_type in ['excel_view_corruption', 'corrupted_excel']:
+                status_code = 422  # Unprocessable Entity
+            elif error_type == 'file_access':
+                status_code = 403  # Forbidden
+            else:
+                status_code = 400  # Bad Request
+            
+            raise HTTPException(
+                status_code=status_code, 
+                detail={
+                    "error": result.get('error', 'Processing failed'),
+                    "message": result.get('user_message', 'Unable to process file'),
+                    "user_action_required": result.get('user_action_required', False),
+                    "error_type": error_type,
+                    "suggestions": result.get('suggestions', []),
+                    "technical_details": result.get('technical_details', '')
+                }
+            )
+        
+        # Record upload in database
+        try:
+            db = create_database_manager()
+            db.connect()
+            
+            upload_record = {
+                'filename': file.filename,
+                'file_type': result.get('file_type', 'unknown'),
+                'file_size': file_size,
+                'store_id': result.get('store_id'),
+                'store_name': result.get('store_name'),
+                'records_processed': result.get('transactions_created', 0),
+                'status': 'processed',
+                'created_at': datetime.now().isoformat()
+            }
+            
+            upload_result = db.admin_client.table('uploads').insert(upload_record).execute()
+            logger.info(f"Upload recorded with ID: {upload_result.data[0]['id'] if upload_result.data else 'unknown'}")
+            
+        except Exception as upload_error:
+            logger.error(f"Failed to record upload: {upload_error}")
+            # Don't fail the entire upload if recording fails
+        
+        # Clean up temp file
+        os.unlink(temp_file_path)
+        
+        return result
+        
+    except Exception as e:
+        # Clean up temp file if it exists
+        if 'temp_file_path' in locals():
+            try:
+                os.unlink(temp_file_path)
+            except:
+                pass
+        
+        logger.error(f"Error processing file {file.filename}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
+
+@app.get("/api/uploads")
+async def get_uploads(limit: int = Query(100, le=1000)):
+    """Get upload history"""
+    try:
+        db = create_database_manager()
+        db.connect()
+        
+        # Get uploads with store information
+        result = db.admin_client.table('uploads').select('''
+            id,
+            filename,
+            file_type,
+            file_size,
+            store_id,
+            store_name,
+            records_processed,
+            status,
+            created_at
+        ''').order('created_at', desc=True).limit(limit).execute()
+        
+        # Format file sizes and add additional info
+        uploads = []
+        for upload in result.data:
+            # Format file size
+            file_size = upload.get('file_size', 0)
+            if file_size:
+                if file_size < 1024:
+                    size_str = f"{file_size} B"
+                elif file_size < 1024 * 1024:
+                    size_str = f"{file_size / 1024:.1f} KB"
+                else:
+                    size_str = f"{file_size / (1024 * 1024):.1f} MB"
+            else:
+                size_str = "Unknown"
+            
+            uploads.append({
+                'id': upload['id'],
+                'filename': upload['filename'],
+                'uploadDate': upload['created_at'],
+                'fileSize': size_str,
+                'fileSizeBytes': file_size,
+                'records': upload.get('records_processed', 0),
+                'status': upload.get('status', 'processed'),
+                'uploadedBy': upload.get('store_name', 'System'),  # Use store name as uploader for now
+                'fileType': upload.get('file_type', 'unknown'),
+                'storeId': upload.get('store_id'),
+                'storeName': upload.get('store_name')
+            })
+        
+        return uploads
+        
+    except Exception as e:
+        logger.error(f"Error fetching uploads: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching uploads: {str(e)}")
+
+@app.delete("/api/uploads/{upload_id}")
+async def delete_upload(upload_id: int):
+    """Delete an upload and its associated data"""
+    try:
+        db = create_database_manager()
+        db.connect()
+        
+        # First, get the upload info
+        upload_result = db.admin_client.table('uploads').select('*').eq('id', upload_id).execute()
+        
+        if not upload_result.data:
+            raise HTTPException(status_code=404, detail="Upload not found")
+        
+        upload = upload_result.data[0]
+        
+        # Delete associated transactions (if we want to clean up completely)
+        # Note: This is optional - you might want to keep transaction data
+        if upload.get('store_id'):
+            logger.info(f"Deleting transactions for upload {upload_id} from store {upload['store_id']}")
+            # We could delete transactions here, but it's safer to just delete the upload record
+            # and keep the transaction data for historical purposes
+        
+        # Delete the upload record
+        delete_result = db.admin_client.table('uploads').delete().eq('id', upload_id).execute()
+        
+        if delete_result.data:
+            logger.info(f"Successfully deleted upload {upload_id}: {upload['filename']}")
+            return {"message": f"Upload '{upload['filename']}' deleted successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to delete upload")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting upload {upload_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting upload: {str(e)}")
+
+@app.get("/api/stores")
+async def get_stores():
+    """Get all stores"""
+    try:
+        db = create_database_manager()
+        db.connect()
+        
+        # Use admin client to access data (same as file upload process)
+        result = db.admin_client.table('stores').select('id, name').execute()
+        return result.data
+        
+    except Exception as e:
+        logger.error(f"Error fetching stores: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching stores: {str(e)}")
+
+@app.get("/api/transactions")
+async def get_transactions(
+    store_id: Optional[str] = Query(None),
+    type: Optional[str] = Query(None),
+    date: Optional[str] = Query(None),  # Keep for backward compatibility
+    date_from: Optional[str] = Query(None),  # New: start date for range
+    date_to: Optional[str] = Query(None),    # New: end date for range
+    sortBy: Optional[str] = Query(None),
+    limit: int = Query(100, le=1000)
+):
+    """Get transactions with optional filtering"""
+    try:
+        db = create_database_manager()
+        db.connect()
+        
+        # Build query using admin client to access uploaded data
+        query = db.admin_client.table('transactions').select('''
+            id,
+            type,
+            quantity,
+            price,
+            created_at,
+            store_id,
+            product_id
+        ''')
+        
+        # Debug: Check total transactions first
+        total_count = db.admin_client.table('transactions').select('id', count='exact').execute()
+        logger.info(f"Total transactions in database: {total_count.count if hasattr(total_count, 'count') else 'unknown'}")
+        
+        # Convert store_id to actual store ID if provided
+        actual_store_id = None
+        if store_id:
+            try:
+                actual_store_id = int(store_id)
+                logger.info(f"Filtering by store_id: {actual_store_id}")
+            except (ValueError, TypeError):
+                logger.warning(f"Invalid store_id format: {store_id}")
+        
+        if actual_store_id:
+            query = query.eq('store_id', actual_store_id)
+        if type:
+            normalized_type = normalize_type_filter(type)
+            logger.info(f"Filtering by type: original='{type}', normalized='{normalized_type}'")
+            query = query.eq('type', normalized_type)
+        
+        # Handle date filtering using business dates (extracted from Excel files)
+        # This provides more accurate filtering based on the actual business date ranges in the files
+        if date_from and date_to:
+            # Date range filtering - find transactions where business dates overlap with requested range
+            logger.info(f"Filtering by business date range: {date_from} to {date_to}")
+            # Use simple date comparison for now (can be optimized later)
+            query = query.gte('business_date_start', date_from).lte('business_date_end', date_to)
+        elif date_from:
+            # From date only - business end date should be >= requested start date
+            logger.info(f"Filtering from business date: {date_from}")
+            query = query.gte('business_date_end', date_from)
+        elif date_to:
+            # To date only - business start date should be <= requested end date
+            logger.info(f"Filtering to business date: {date_to}")
+            query = query.lte('business_date_start', date_to)
+        elif date:
+            # Single date - check if date falls within business range
+            logger.info(f"Filtering by single business date: {date}")
+            query = query.lte('business_date_start', date).gte('business_date_end', date)
+        
+        # Apply sorting with debug logging
+        if sortBy == 'quantity_asc':
+            logger.info(f"Sorting by quantity ascending")
+            query = query.order('quantity', desc=False)
+        elif sortBy == "quantity_desc":
+            logger.info(f"Sorting by quantity descending")
+            query = query.order("quantity", desc = True)
+        else:
+            logger.info(f"Sorting by created_at descending (default)")
+            query = query.order('created_at', desc=True)
+        
+        # Apply limit
+        query = query.limit(limit)
+        
+        result = query.execute()
+        
+        # Fetch store names and product names separately
+        store_ids = [row['store_id'] for row in result.data]
+        product_ids = [row['product_id'] for row in result.data]
+        
+        store_query = db.admin_client.table('stores').select('id, name').in_('id', store_ids).execute()
+        product_query = db.admin_client.table('products').select('id, code, name').in_('id', product_ids).execute()
+        
+        store_map = {row['id']: row['name'] for row in store_query.data}
+        product_map = {row['id']: {'code': row['code'], 'name': row['name']} for row in product_query.data}
+        
+        # Transform data for frontend
+        transactions = []
+        for row in result.data:
+            store_name = store_map.get(row['store_id'], "Unknown Store")
+            product_code = product_map.get(row['product_id'], {}).get('code', "Unknown")
+            product_name = product_map.get(row['product_id'], {}).get('name', "Unknown Product")
+            
+            transactions.append({
+                'id': row['id'],
+                'store_name': store_name,
+                'product_code': product_code,
+                'product_name': product_name,
+                'type': row['type'],
+                'quantity': row['quantity'],
+                'price': row['price'],
+                'created_at': row['created_at']
+            })
+        
+        return transactions
+        
+    except Exception as e:
+        logger.error(f"Error fetching transactions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching transactions: {str(e)}")
+
+@app.get("/api/statistics/product-sales")
+async def get_product_statistics(
+    type: Optional[str] = Query(None),
+    date: Optional[str] = Query(None),  # Keep for backward compatibility
+    date_from: Optional[str] = Query(None),  # New: start date for range
+    date_to: Optional[str] = Query(None),    # New: end date for range
+    stores: Optional[str] = Query(None)  # Comma-separated store IDs
+):
+    """Get product sales statistics"""
+    try:
+        db = create_database_manager()
+        db.connect()
+        
+        # Build base query using admin client to access uploaded data
+        query = db.admin_client.table('transactions').select('''
+            product_id,
+            store_id,
+            quantity,
+            type,
+            created_at
+        ''')
+        
+        # Apply filters
+        logger.info(f"Applying filters - type: {type}, date: {date}, date_from: {date_from}, date_to: {date_to}, stores: {stores}")
+        
+        # Parse store IDs if provided
+        store_ids = None
+        if stores:
+            try:
+                store_ids = [int(s.strip()) for s in stores.split(',')]
+                logger.info(f"Filtering by store IDs: {store_ids}")
+                query = query.in_('store_id', store_ids)
+            except (ValueError, TypeError):
+                logger.warning(f"Invalid store_id format: {stores}")
+        
+        if type:
+            normalized_type = normalize_type_filter(type)
+            logger.info(f"Filtering by type: original='{type}', normalized='{normalized_type}'")
+            query = query.eq('type', normalized_type)
+        
+        # Handle date filtering using business dates (extracted from Excel files)
+        if date_from and date_to:
+            # Date range filtering - find transactions where business dates overlap with requested range
+            logger.info(f"Filtering by business date range: {date_from} to {date_to}")
+            query = query.gte('business_date_start', date_from).lte('business_date_end', date_to)
+        elif date_from:
+            # From date only - business end date should be >= requested start date
+            logger.info(f"Filtering from business date: {date_from}")
+            query = query.gte('business_date_end', date_from)
+        elif date_to:
+            # To date only - business start date should be <= requested end date
+            logger.info(f"Filtering to business date: {date_to}")
+            query = query.lte('business_date_start', date_to)
+        elif date:
+            # Single date - check if date falls within business range
+            logger.info(f"Filtering by single business date: {date}")
+            query = query.lte('business_date_start', date).gte('business_date_end', date)
+        
+        result = query.execute()
+        logger.info(f"Found {len(result.data)} transactions for statistics")
+        
+        # Get unique product and store IDs
+        product_ids = list(set(row['product_id'] for row in result.data))
+        transaction_store_ids = list(set(row['store_id'] for row in result.data))
+        
+        # Fetch product and store information
+        products_query = db.admin_client.table('products').select('id, code, name').in_('id', product_ids).execute()
+        stores_query = db.admin_client.table('stores').select('id, name').in_('id', transaction_store_ids).execute()
+        
+        # Create lookup maps
+        product_map = {row['id']: {'code': row['code'], 'name': row['name']} for row in products_query.data}
+        store_map = {row['id']: row['name'] for row in stores_query.data}
+        
+        # Process data to create statistics
+        product_stats = {}
+        
+        for row in result.data:
+            product_id = row['product_id']
+            store_id = row['store_id']
+            quantity = row['quantity']
+            
+            # Get product info
+            product_info = product_map.get(product_id)
+            if not product_info:
+                continue
+                
+            product_code = product_info['code']
+            product_name = product_info['name']
+            
+            if product_code not in product_stats:
+                product_stats[product_code] = {
+                    'product_code': product_code,
+                    'product_name': product_name,
+                    'store_sales': {}
+                }
+            
+            # Add to store sales
+            if store_id not in product_stats[product_code]['store_sales']:
+                product_stats[product_code]['store_sales'][store_id] = 0
+            
+            product_stats[product_code]['store_sales'][store_id] += quantity
+        
+        return list(product_stats.values())
+        
+    except Exception as e:
+        logger.error(f"Error fetching product statistics: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching statistics: {str(e)}")
+
+@app.post("/api/statistics/export-excel")
+async def export_statistics_excel(
+    type: Optional[str] = Query(None),
+    date: Optional[str] = Query(None),  # Keep for backward compatibility
+    date_from: Optional[str] = Query(None),  # New: start date for range
+    date_to: Optional[str] = Query(None),    # New: end date for range
+    stores: Optional[str] = Query(None)  # Comma-separated store IDs
+):
+    """
+    Export product statistics to Excel file
+    
+    This endpoint generates a professional Excel file with the same data
+    displayed in the Statistics frontend page, including:
+    - Product codes and names
+    - Store-specific sales columns
+    - Total sold, store count, and average calculations
+    - Applied filters documentation
+    - Professional formatting
+    """
+    try:
+        logger.info(f"Exporting statistics to Excel - type: {type}, date_from: {date_from}, date_to: {date_to}, stores: {stores}")
+        
+        db = create_database_manager()
+        db.connect()
+        
+        # Build query using the same logic as get_product_statistics
+        query = db.admin_client.table('transactions').select('''
+            product_id,
+            store_id,
+            quantity,
+            type,
+            created_at
+        ''')
+        
+        # Apply the same filters as the statistics endpoint
+        store_ids = None
+        if stores:
+            try:
+                store_ids = [int(s.strip()) for s in stores.split(',')]
+                logger.info(f"Filtering by store IDs: {store_ids}")
+                query = query.in_('store_id', store_ids)
+            except (ValueError, TypeError):
+                logger.warning(f"Invalid store_id format: {stores}")
+        
+        if type:
+            normalized_type = normalize_type_filter(type)
+            logger.info(f"Filtering by type: original='{type}', normalized='{normalized_type}'")
+            query = query.eq('type', normalized_type)
+        
+        # Handle date filtering with proper timezone support
+        if date_from and date_to:
+            logger.info(f"Filtering by date range: {date_from} to {date_to}")
+            query = query.gte('created_at', f'{date_from}T00:00:00+00:00').lte('created_at', f'{date_to}T23:59:59+00:00')
+        elif date_from:
+            logger.info(f"Filtering from date: {date_from}")
+            query = query.gte('created_at', f'{date_from}T00:00:00+00:00')
+        elif date_to:
+            logger.info(f"Filtering to date: {date_to}")
+            query = query.lte('created_at', f'{date_to}T23:59:59+00:00')
+        elif date:
+            logger.info(f"Filtering by single date: {date}")
+            query = query.gte('created_at', f'{date}T00:00:00+00:00').lte('created_at', f'{date}T23:59:59+00:00')
+        
+        result = query.execute()
+        logger.info(f"Found {len(result.data)} transactions for Excel export")
+        
+        # Get unique product and store IDs
+        product_ids = list(set(row['product_id'] for row in result.data))
+        transaction_store_ids = list(set(row['store_id'] for row in result.data))
+        
+        # Fetch product and store information
+        products_query = db.admin_client.table('products').select('id, code, name').in_('id', product_ids).execute()
+        stores_query = db.admin_client.table('stores').select('id, name').in_('id', transaction_store_ids).execute()
+        
+        # Create lookup maps
+        product_map = {row['id']: {'code': row['code'], 'name': row['name']} for row in products_query.data}
+        store_map = {row['id']: row['name'] for row in stores_query.data}
+        
+        # Process data to create statistics (same logic as get_product_statistics)
+        product_stats = {}
+        
+        for row in result.data:
+            product_id = row['product_id']
+            store_id = row['store_id']
+            quantity = row['quantity']
+            
+            product_info = product_map.get(product_id)
+            if not product_info:
+                continue
+                
+            product_code = product_info['code']
+            product_name = product_info['name']
+            
+            if product_code not in product_stats:
+                product_stats[product_code] = {
+                    'product_code': product_code,
+                    'product_name': product_name,
+                    'store_sales': {}
+                }
+            
+            if store_id not in product_stats[product_code]['store_sales']:
+                product_stats[product_code]['store_sales'][store_id] = 0
+            
+            product_stats[product_code]['store_sales'][store_id] += quantity
+        
+        statistics_data = list(product_stats.values())
+        
+        # Get all stores for the Excel export (not just filtered ones)
+        all_stores_query = db.admin_client.table('stores').select('id, name').execute()
+        stores_data = all_stores_query.data
+        
+        # Prepare filter information for Excel documentation
+        filters_info = {
+            'type': type,
+            'date': date,
+            'date_from': date_from,
+            'date_to': date_to,
+            'selectedStores': store_ids if store_ids else []
+        }
+        
+        # Generate Excel file
+        excel_buffer = create_statistics_excel_export(
+            statistics_data=statistics_data,
+            stores_data=stores_data,
+            filters=filters_info
+        )
+        
+        # Generate filename with timestamp and filters
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename_parts = ['estadisticas_productos', timestamp]
+        
+        if type and type != 'all':
+            filename_parts.append(type)
+        if date_from and date_to:
+            filename_parts.append(f'{date_from}_a_{date_to}')
+        elif date:
+            filename_parts.append(date)
+            
+        filename = '_'.join(filename_parts) + '.xlsx'
+        
+        logger.info(f"Generated Excel file: {filename} with {len(statistics_data)} products")
+        
+        # Return Excel file as streaming response
+        return StreamingResponse(
+            iter([excel_buffer.getvalue()]),
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={
+                'Content-Disposition': f'attachment; filename="{filename}"'
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"Error exporting statistics to Excel: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error exporting to Excel: {str(e)}")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

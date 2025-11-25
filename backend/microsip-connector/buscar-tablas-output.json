@@ -1,0 +1,1631 @@
+{
+  "tablasRapidas": [
+    {
+      "nombre": "ARTICULOS",
+      "campos": 42,
+      "camposImportantes": [
+        "ARTICULO_ID",
+        "FECHA_SUSP",
+        "LINEA_ARTICULO_ID",
+        "UNIDAD_VENTA",
+        "UNIDAD_COMPRA",
+        "CONTENIDO_UNIDAD_COMPRA",
+        "ES_PRECIO_VARIABLE",
+        "RED_PRECIO_CON_IMPTO",
+        "FACTOR_RED_PRECIO_CON_IMPTO",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 579,
+        "selectMs": 597,
+        "total": 0,
+        "campoFecha": "FECHA_SUSP",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "ARTICULOS_DISCRETOS",
+      "campos": 5,
+      "camposImportantes": [
+        "ART_DISCRETO_ID",
+        "ARTICULO_ID",
+        "FECHA"
+      ],
+      "performance": {
+        "countMs": 569,
+        "selectMs": 580,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "CONJUNTOS_SUCURSALES",
+      "campos": 9,
+      "camposImportantes": [
+        "CONJUNTO_SUCURSALES_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 768,
+        "selectMs": 1111,
+        "total": 0,
+        "campoFecha": "FECHA_HORA_CREACION",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_BA",
+      "campos": 36,
+      "camposImportantes": [
+        "DOCTO_BA_ID",
+        "CONCEPTO_BA_ID",
+        "CUENTA_BAN_ID",
+        "FECHA",
+        "FECHA_APLIC",
+        "MONEDA_ID",
+        "FECHA_CONCILIACION",
+        "BENEFICIARIO_ID",
+        "FORMA_EMITIDA",
+        "GRUPO_MOV_PERIOD_ID",
+        "ID_ORIGINAL",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 767,
+        "selectMs": 773,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_CC",
+      "campos": 56,
+      "camposImportantes": [
+        "DOCTO_CC_ID",
+        "CONCEPTO_CC_ID",
+        "FOLIO",
+        "SUCURSAL_ID",
+        "FECHA",
+        "CLIENTE_ID",
+        "FECHA_HORA_PAGO",
+        "LUGAR_EXPEDICION_ID",
+        "COBRADOR_ID",
+        "FORMA_EMITIDA",
+        "COND_PAGO_ID",
+        "FECHA_DSCTO_PPAG",
+        "FECHA_APLICACION",
+        "MODALIDAD_FACTURACION",
+        "CFDI_COBRO_DIFERIDO",
+        "FOLIO_RECIBO_PAGO",
+        "FECHA_HORA_ENVIO",
+        "CUENTA_BAN_ID",
+        "CFDI_ASOCIADO_ID",
+        "TERCERO_CO_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 604,
+        "selectMs": 622,
+        "total": 2166,
+        "campoFecha": "FECHA",
+        "muestra": 10
+      }
+    },
+    {
+      "nombre": "DOCTOS_CM",
+      "campos": 55,
+      "camposImportantes": [
+        "DOCTO_CM_ID",
+        "SUCURSAL_ID",
+        "FOLIO",
+        "FECHA",
+        "PROVEEDOR_ID",
+        "FOLIO_PROV",
+        "FOLIO_PROV_AUX",
+        "CONSIG_CM_ID",
+        "ALMACEN_ID",
+        "PEDIMENTO_ID",
+        "MONEDA_ID",
+        "FECHA_ENTREGA",
+        "FORMA_EMITIDA",
+        "COND_PAGO_ID",
+        "FECHA_DSCTO_PPAG",
+        "VIA_EMBARQUE_ID",
+        "IMPUESTO_SUSTITUIDO_ID",
+        "IMPUESTO_SUSTITUTO_ID",
+        "FECHA_HORA_ENVIO",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 592,
+        "selectMs": 592,
+        "total": 6,
+        "campoFecha": "FECHA",
+        "muestra": 6
+      }
+    },
+    {
+      "nombre": "DOCTOS_CO",
+      "campos": 26,
+      "camposImportantes": [
+        "DOCTO_CO_ID",
+        "TIPO_POLIZA_ID",
+        "FECHA",
+        "MONEDA_ID",
+        "FORMA_EMITIDA",
+        "GRUPO_POL_PERIOD_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 592,
+        "selectMs": 879,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_CONSOLIDADOS",
+      "campos": 4,
+      "camposImportantes": [
+        "DOCTO_ID",
+        "EMPRESA_CONSOLIDAR_ID",
+        "FECHA"
+      ],
+      "performance": {
+        "countMs": 798,
+        "selectMs": 702,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_CO_DET",
+      "campos": 16,
+      "camposImportantes": [
+        "DOCTO_CO_DET_ID",
+        "DOCTO_CO_ID",
+        "CUENTA_ID",
+        "DEPTO_CO_ID",
+        "RECORDATORIO_ID",
+        "FECHA",
+        "MONEDA_ID"
+      ],
+      "performance": {
+        "countMs": 578,
+        "selectMs": 630,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_CO_DET_DIOT",
+      "campos": 18,
+      "camposImportantes": [
+        "DOCTO_CO_DET_DIOT_ID",
+        "DOCTO_CO_DET_ID",
+        "TERCERO_CO_ID",
+        "FECHA",
+        "IVA_RETENIDO"
+      ],
+      "performance": {
+        "countMs": 889,
+        "selectMs": 796,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_CP",
+      "campos": 35,
+      "camposImportantes": [
+        "DOCTO_CP_ID",
+        "CONCEPTO_CP_ID",
+        "SUCURSAL_ID",
+        "FOLIO",
+        "FOLIO_PROV_AUX",
+        "FECHA",
+        "PROVEEDOR_ID",
+        "FORMA_EMITIDA",
+        "COND_PAGO_ID",
+        "FECHA_DSCTO_PPAG",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 877,
+        "selectMs": 823,
+        "total": 3,
+        "campoFecha": "FECHA",
+        "muestra": 3
+      }
+    },
+    {
+      "nombre": "DOCTOS_IN",
+      "campos": 25,
+      "camposImportantes": [
+        "DOCTO_IN_ID",
+        "ALMACEN_ID",
+        "CONCEPTO_IN_ID",
+        "SUCURSAL_ID",
+        "FOLIO",
+        "FECHA",
+        "ALMACEN_DESTINO_ID",
+        "CENTRO_COSTO_ID",
+        "FORMA_EMITIDA",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 802,
+        "selectMs": 568,
+        "total": 1804,
+        "campoFecha": "FECHA",
+        "muestra": 10
+      }
+    },
+    {
+      "nombre": "DOCTOS_INVFIS",
+      "campos": 19,
+      "camposImportantes": [
+        "DOCTO_INVFIS_ID",
+        "ALMACEN_ID",
+        "SUCURSAL_ID",
+        "FOLIO",
+        "FECHA",
+        "DOCTO_IN_ID_ENT",
+        "DOCTO_IN_ID_SAL",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 728,
+        "selectMs": 777,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_IN_DET_COMPRAS",
+      "campos": 4,
+      "camposImportantes": [
+        "ARTICULO_ID",
+        "DOCTO_IN_DET_ID",
+        "FECHA"
+      ],
+      "performance": {
+        "countMs": 982,
+        "selectMs": 926,
+        "total": 297,
+        "campoFecha": "FECHA",
+        "muestra": 10
+      }
+    },
+    {
+      "nombre": "DOCTOS_PEND_CC",
+      "campos": 21,
+      "camposImportantes": [
+        "DOCTO_PEND_CC_ID",
+        "CONCEPTO_CC_ID",
+        "FOLIO",
+        "FECHA",
+        "CLIENTE_ID",
+        "COBRADOR_ID",
+        "FORMA_EMITIDA",
+        "COND_PAGO_ID",
+        "FECHA_DSCTO_PPAG",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 975,
+        "selectMs": 1026,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV",
+      "campos": 71,
+      "camposImportantes": [
+        "DOCTO_PV_ID",
+        "CAJA_ID",
+        "SUCURSAL_ID",
+        "FOLIO",
+        "FECHA",
+        "CAJERO_ID",
+        "CLIENTE_ID",
+        "CLIENTE_FAC_ID",
+        "DIR_CLI_ID",
+        "ALMACEN_ID",
+        "LUGAR_EXPEDICION_ID",
+        "MONEDA_ID",
+        "IMPUESTO_INCLUIDO",
+        "FECHA_VIGENCIA",
+        "TICKET_EMITIDO",
+        "FORMA_GLOBAL_EMITIDA",
+        "FORMA_EMITIDA",
+        "VENDEDOR_ID",
+        "PERIODICIDAD_FAC_GLOBAL",
+        "FECHA_INI_FAC_GLOBAL",
+        "FECHA_FIN_FAC_GLOBAL",
+        "ALMACEN_ID_FAC_GLOBAL",
+        "UNID_COMPROM",
+        "IMPUESTO_SUSTITUIDO_ID",
+        "IMPUESTO_SUSTITUTO_ID",
+        "MODALIDAD_FACTURACION",
+        "PARTIDA_AJUSTE_ID",
+        "PRECIO_ORIG_PARTIDA_AJUSTE",
+        "TERCERO_CO_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION",
+        "FECHA_HORA_ENVIO"
+      ],
+      "performance": {
+        "countMs": 603,
+        "selectMs": 579,
+        "total": 2095,
+        "campoFecha": "FECHA",
+        "muestra": 10
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_DET_TRAN_ELECT",
+      "campos": 11,
+      "camposImportantes": [
+        "DOCTO_PV_DET_ID",
+        "CAJA_ID",
+        "CAJERO_ID",
+        "FECHA_HORA",
+        "FECHA_HORA_CREACION"
+      ],
+      "performance": {
+        "countMs": 579,
+        "selectMs": 725,
+        "total": 0,
+        "campoFecha": "FECHA_HORA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_RP",
+      "campos": 25,
+      "camposImportantes": [
+        "DOCTO_RP_ID",
+        "FOLIO",
+        "FECHA",
+        "CLIENTE_ID",
+        "SUCURSAL_ID",
+        "LUGAR_EXPEDICION_ID",
+        "FORMA_EMITIDA",
+        "FECHA_HORA_ENVIO",
+        "TERCERO_CO_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 629,
+        "selectMs": 979,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_TR",
+      "campos": 30,
+      "camposImportantes": [
+        "DOCTO_TR_ID",
+        "FOLIO",
+        "FECHA",
+        "SUCURSAL_ID",
+        "CLIENTE_ID",
+        "DIR_CLI_ID",
+        "LUGAR_EXPEDICION_ID",
+        "DOCTO_ORIGEN_ID",
+        "INCLUYE_PRECIOS",
+        "MONEDA_ID",
+        "FORMA_EMITIDA",
+        "FECHA_HORA_ENVIO",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 697,
+        "selectMs": 607,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "DOCTOS_VE",
+      "campos": 67,
+      "camposImportantes": [
+        "DOCTO_VE_ID",
+        "SUCURSAL_ID",
+        "FOLIO",
+        "FECHA",
+        "CLIENTE_ID",
+        "DIR_CLI_ID",
+        "DIR_CONSIG_ID",
+        "ALMACEN_ID",
+        "LUGAR_EXPEDICION_ID",
+        "MONEDA_ID",
+        "FECHA_VIGENCIA_ENTREGA",
+        "FECHA_ORDEN_COMPRA",
+        "FOLIO_RECIBO_MERCANCIA",
+        "FECHA_RECIBO_MERCANCIA",
+        "FORMA_EMITIDA",
+        "COND_PAGO_ID",
+        "FECHA_DSCTO_PPAG",
+        "VENDEDOR_ID",
+        "VIA_EMBARQUE_ID",
+        "IMPUESTO_SUSTITUIDO_ID",
+        "IMPUESTO_SUSTITUTO_ID",
+        "MODALIDAD_FACTURACION",
+        "FECHA_HORA_ENVIO",
+        "CFDI_FACT_DEVUELTA_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF",
+        "FECHA_HORA_CANCELACION"
+      ],
+      "performance": {
+        "countMs": 577,
+        "selectMs": 595,
+        "total": 0,
+        "campoFecha": "FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "IMPORTES_DOCTOS_CC",
+      "campos": 14,
+      "camposImportantes": [
+        "IMPTE_DOCTO_CC_ID",
+        "DOCTO_CC_ID",
+        "FECHA",
+        "DOCTO_CC_ACR_ID",
+        "IVA_RETENIDO",
+        "ISR_RETENIDO"
+      ],
+      "performance": {
+        "countMs": 1612,
+        "selectMs": 1002,
+        "total": 2166,
+        "campoFecha": "FECHA",
+        "muestra": 10
+      }
+    },
+    {
+      "nombre": "LINEAS_ARTICULOS",
+      "campos": 20,
+      "camposImportantes": [
+        "LINEA_ARTICULO_ID",
+        "GRUPO_LINEA_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 574,
+        "selectMs": 580,
+        "total": 0,
+        "campoFecha": "FECHA_HORA_CREACION",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "PRECIOS_ARTICULOS",
+      "campos": 8,
+      "camposImportantes": [
+        "PRECIO_ARTICULO_ID",
+        "ARTICULO_ID",
+        "PRECIO_EMPRESA_ID",
+        "PRECIO",
+        "MONEDA_ID",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 735,
+        "selectMs": 959,
+        "total": 86,
+        "campoFecha": "FECHA_HORA_ULT_MODIF",
+        "muestra": 10
+      }
+    },
+    {
+      "nombre": "ROLES_CLAVES_ARTICULOS",
+      "campos": 11,
+      "camposImportantes": [
+        "ROL_CLAVE_ART_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 1047,
+        "selectMs": 900,
+        "total": 0,
+        "campoFecha": "FECHA_HORA_CREACION",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "ROLES_IMAGENES_ARTICULOS",
+      "campos": 9,
+      "camposImportantes": [
+        "ROL_IMAGEN_ART_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 563,
+        "selectMs": 579,
+        "total": 0,
+        "campoFecha": "FECHA_HORA_CREACION",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "SESIONES_SUCURSALES",
+      "campos": 4,
+      "camposImportantes": [
+        "SESION_SUCURSAL_ID",
+        "SESION_ID",
+        "FECHA_HORA"
+      ],
+      "performance": {
+        "countMs": 1112,
+        "selectMs": 926,
+        "total": 0,
+        "campoFecha": "FECHA_HORA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "SOL_LOTIFICACION_ARTICULO",
+      "campos": 12,
+      "camposImportantes": [
+        "LOTIFICACION_ARTICULO_ID",
+        "ARTICULO_ID",
+        "UNIDADES_LOTE",
+        "FORMATO_FECHA",
+        "CADUCIDAD_AGREGAR",
+        "CADUCIDAD_PERIODO",
+        "CADUCIDAD_TIPO_FECHA"
+      ],
+      "performance": {
+        "countMs": 579,
+        "selectMs": 561,
+        "total": 0,
+        "campoFecha": "FORMATO_FECHA",
+        "muestra": 0
+      }
+    },
+    {
+      "nombre": "SOL_REPLICADOR_ARTICULOS",
+      "campos": 10,
+      "camposImportantes": [
+        "REPLICADOR_ARTICULO_ID",
+        "ARTICULO_PPAL_ID",
+        "ARTICULO_SEC_ID",
+        "EMPRESA_SECUNDARIA_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 696,
+        "selectMs": 818,
+        "total": 12,
+        "campoFecha": "FECHA_HORA_CREACION",
+        "muestra": 10
+      }
+    },
+    {
+      "nombre": "SUCURSALES",
+      "campos": 28,
+      "camposImportantes": [
+        "SUCURSAL_ID",
+        "SUCURSAL_PADRE_ID",
+        "ID_INTERNO",
+        "CIUDAD_ID",
+        "LUGAR_EXPEDICION_ID",
+        "FECHA_HORA_CREACION",
+        "FECHA_HORA_ULT_MODIF"
+      ],
+      "performance": {
+        "countMs": 575,
+        "selectMs": 596,
+        "total": 0,
+        "campoFecha": "FECHA_HORA_CREACION",
+        "muestra": 0
+      }
+    }
+  ],
+  "tablasLentas": [
+    {
+      "nombre": "DOCTOS_IN_DET",
+      "campos": 18,
+      "camposImportantes": [
+        "DOCTO_IN_DET_ID",
+        "DOCTO_IN_ID",
+        "ALMACEN_ID",
+        "CONCEPTO_IN_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "UNIDADES",
+        "FECHA",
+        "CENTRO_COSTO_ID"
+      ],
+      "performance": {
+        "countMs": 3533,
+        "selectMs": 1779,
+        "total": 9475,
+        "campoFecha": "FECHA",
+        "muestra": 10
+      }
+    },
+    {
+      "nombre": "DOCTOS_PROC_CANCEL",
+      "campos": 5,
+      "camposImportantes": [
+        "DOCTO_ID",
+        "CFDI_ID",
+        "FECHA_HORA_CREACION"
+      ],
+      "performance": {
+        "countMs": 6502,
+        "selectMs": 1081,
+        "total": 1,
+        "campoFecha": "FECHA_HORA_CREACION",
+        "muestra": 1
+      }
+    }
+  ],
+  "tablasConError": [
+    {
+      "nombre": "ARTICULOS_CLIENTES",
+      "campos": 6,
+      "camposImportantes": [
+        "ART_CLI_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "CLIENTE_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "ARTICULOS_TIENDA_LINEA",
+      "campos": 4,
+      "camposImportantes": [
+        "ARTICULOS_TIENDA_LINEA_ID",
+        "ARTICULO_ID",
+        "ARTICULO_TW_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "ARTICULOS_VARIANTES",
+      "campos": 1,
+      "camposImportantes": [
+        "ART_PADRE_VAR_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "ARTICULOS_WEB",
+      "campos": 5,
+      "camposImportantes": [
+        "ARTICULO_WEB_ID",
+        "ARTICULO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "CLAVES_ARTICULOS",
+      "campos": 5,
+      "camposImportantes": [
+        "CLAVE_ARTICULO_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "ROL_CLAVE_ART_ID",
+        "CONTENIDO_EMPAQUE"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "COMPROM_ARTICULOS",
+      "campos": 4,
+      "camposImportantes": [
+        "COMPROM_ART_ID",
+        "ARTICULO_ID",
+        "ALMACEN_ID",
+        "UNIDADES_COMPROM"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "CONJUNTOS_SUCURSALES_DET",
+      "campos": 3,
+      "camposImportantes": [
+        "CONJUNTO_SUCURSALES_DET_ID",
+        "CONJUNTO_SUCURSALES_ID",
+        "SUCURSAL_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_BA_INFO_BAN",
+      "campos": 9,
+      "camposImportantes": [
+        "DOCTO_BA_INFO_BAN_ID",
+        "DOCTO_BA_ID",
+        "TERCERO_CO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CC_INFO_BAN",
+      "campos": 7,
+      "camposImportantes": [
+        "DOCTO_CC_ID",
+        "BANCO_ORIG_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CM_DET",
+      "campos": 20,
+      "camposImportantes": [
+        "DOCTO_CM_DET_ID",
+        "DOCTO_CM_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "UNIDADES",
+        "UNIDADES_REC_DEV",
+        "UNIDADES_A_REC",
+        "CONTENIDO_UMED",
+        "PRECIO_UNITARIO",
+        "PRECIO_TOTAL_NETO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CM_LIGAS",
+      "campos": 3,
+      "camposImportantes": [
+        "DOCTO_CM_LIGA_ID",
+        "DOCTO_CM_FTE_ID",
+        "DOCTO_CM_DEST_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CM_LIGAS_DET",
+      "campos": 3,
+      "camposImportantes": [
+        "DOCTO_CM_LIGA_ID",
+        "DOCTO_CM_DET_FTE_ID",
+        "DOCTO_CM_DET_DEST_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CM_PROEVE",
+      "campos": 21,
+      "camposImportantes": [
+        "DOCTO_CM_ID",
+        "CIUDAD_ID",
+        "ESTADO_ID",
+        "PAIS_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CO_CFDI",
+      "campos": 4,
+      "camposImportantes": [
+        "DOCTO_CO_CFDI_ID",
+        "DOCTO_CO_ID",
+        "CFDI_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CO_DET_CFDI",
+      "campos": 2,
+      "camposImportantes": [
+        "DOCTO_CO_DET_ID",
+        "DOCTO_CO_CFDI_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CO_DET_INFO_BAN",
+      "campos": 12,
+      "camposImportantes": [
+        "DOCTO_CO_DET_INFO_BAN_ID",
+        "DOCTO_CO_DET_ID",
+        "BENEFICIARIO_ID",
+        "TERCERO_CO_ID",
+        "CUENTA_BAN_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_CP_INFO_BAN",
+      "campos": 9,
+      "camposImportantes": [
+        "DOCTO_CP_ID",
+        "BENEFICIARIO_ID",
+        "CUENTA_BAN_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_ENTRE_SIS",
+      "campos": 5,
+      "camposImportantes": [
+        "DOCTO_DEST_ID",
+        "DOCTO_FTE_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_INVFIS_DET",
+      "campos": 7,
+      "camposImportantes": [
+        "DOCTO_INVFIS_DET_ID",
+        "DOCTO_INVFIS_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "UNIDADES",
+        "DOCTO_IN_DET_ID_ENT",
+        "DOCTO_IN_DET_ID_SAL"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_COBROS",
+      "campos": 7,
+      "camposImportantes": [
+        "DOCTO_PV_COBRO_ID",
+        "DOCTO_PV_ID",
+        "FORMA_COBRO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_COBROS_REFER",
+      "campos": 3,
+      "camposImportantes": [
+        "DOCTO_PV_COBRO_ID",
+        "FORMA_COBRO_REFER_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_DET",
+      "campos": 24,
+      "camposImportantes": [
+        "DOCTO_PV_DET_ID",
+        "DOCTO_PV_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "UNIDADES",
+        "UNIDADES_DEV",
+        "UNIDADES_SURT",
+        "UNIDADES_A_SURTIR",
+        "TIPO_CONTAB_UNID",
+        "PRECIO_UNITARIO",
+        "PRECIO_UNITARIO_IMPTO",
+        "IMPUESTO_POR_UNIDAD",
+        "PRECIO_TOTAL_NETO",
+        "PRECIO_MODIFICADO",
+        "VENDEDOR_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_DET_POLS_DSCTOS",
+      "campos": 6,
+      "camposImportantes": [
+        "DOCTO_PV_DET_POL_DSCTO_ID",
+        "DOCTO_PV_DET_ID",
+        "POLITICA_DSCTO_APLICADA_ID",
+        "NOMBRE_PRECIO_EMPRESA"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_LIGAS",
+      "campos": 3,
+      "camposImportantes": [
+        "DOCTO_PV_LIGA_ID",
+        "DOCTO_PV_FTE_ID",
+        "DOCTO_PV_DEST_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_LIGAS_DET",
+      "campos": 4,
+      "camposImportantes": [
+        "DOCTO_PV_LIGA_ID",
+        "DOCTO_PV_DET_FTE_ID",
+        "DOCTO_PV_DET_DEST_ID",
+        "UNIDADES_SURTIDAS"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_NOMBRES_OFERTAS_MM",
+      "campos": 2,
+      "camposImportantes": [
+        "NOMBRE_OFERTA_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_OFERTAS_MM",
+      "campos": 3,
+      "camposImportantes": [
+        "DOCTO_PV_OFERTA_MM_ID",
+        "DOCTO_PV_ID",
+        "NOMBRE_OFERTA_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_OFERTAS_MM_DET",
+      "campos": 11,
+      "camposImportantes": [
+        "DOCTO_PV_OFERTA_MM_DET_ID",
+        "DOCTO_PV_OFERTA_MM_ID",
+        "DOCTO_PV_DET_ID",
+        "DOCTO_PV_DET_ORIG_ID",
+        "PRECIO_ESPECIAL",
+        "UNIDADES",
+        "PRECIO_UNITARIO_ORIG",
+        "PRECIO_UNITARIO_IMPTO_ORIG"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_PV_TRAN_PEND_TC",
+      "campos": 6,
+      "camposImportantes": [
+        "DOCTO_PV_TRAN_PEND_TC_ID",
+        "DOCTO_PV_COBRO_ID",
+        "FORMA_COBRO_ID",
+        "CAJA_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_RP_DET",
+      "campos": 3,
+      "camposImportantes": [
+        "DOCTO_RP_DET_ID",
+        "DOCTO_RP_ID",
+        "DOCTO_CC_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_TR_DET",
+      "campos": 10,
+      "camposImportantes": [
+        "DOCTO_TR_DET_ID",
+        "DOCTO_TR_ID",
+        "DOCTO_ORIGEN_DET_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "UNIDADES",
+        "PRECIO_UNITARIO_NETO",
+        "MOVTO_JUEGO_PADRE_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_VE_CAMPOS_ADDENDA",
+      "campos": 2,
+      "camposImportantes": [
+        "DOCTO_VE_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_VE_DET",
+      "campos": 22,
+      "camposImportantes": [
+        "DOCTO_VE_DET_ID",
+        "DOCTO_VE_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "UNIDADES",
+        "UNIDADES_COMPROM",
+        "UNIDADES_SURT_DEV",
+        "UNIDADES_A_SURTIR",
+        "PRECIO_UNITARIO",
+        "PRECIO_TOTAL_NETO",
+        "PRECIO_MODIFICADO",
+        "TERCERO_CO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_VE_DET_POLS_DSCTOS",
+      "campos": 6,
+      "camposImportantes": [
+        "DOCTO_VE_DET_POL_DSCTO_ID",
+        "DOCTO_VE_DET_ID",
+        "POLITICA_DSCTO_APLICADA_ID",
+        "NOMBRE_PRECIO_EMPRESA"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_VE_LIGAS",
+      "campos": 3,
+      "camposImportantes": [
+        "DOCTO_VE_LIGA_ID",
+        "DOCTO_VE_FTE_ID",
+        "DOCTO_VE_DEST_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "DOCTOS_VE_LIGAS_DET",
+      "campos": 3,
+      "camposImportantes": [
+        "DOCTO_VE_LIGA_ID",
+        "DOCTO_VE_DET_FTE_ID",
+        "DOCTO_VE_DET_DEST_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "FOLIOS_VENTAS",
+      "campos": 7,
+      "camposImportantes": [
+        "FOLIO_VENTAS_ID",
+        "SUCURSAL_ID",
+        "MODALIDAD_FACTURACION"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "FORMAS_COBRO_DOCTOS",
+      "campos": 8,
+      "camposImportantes": [
+        "FORMA_COBRO_DOC_ID",
+        "DOCTO_ID",
+        "FORMA_COBRO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMAGENES_ARTICULOS",
+      "campos": 4,
+      "camposImportantes": [
+        "IMAGEN_ARTICULO_ID",
+        "ARTICULO_ID",
+        "ROL_IMAGEN_ART_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPORTES_DOCTOS_CC_IMPTOS",
+      "campos": 6,
+      "camposImportantes": [
+        "IMPTE_DOCTO_CC_IMPTO_ID",
+        "IMPTE_DOCTO_CC_ID",
+        "IMPUESTO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPORTES_DOCTOS_CP",
+      "campos": 11,
+      "camposImportantes": [
+        "IMPTE_DOCTO_CP_ID",
+        "DOCTO_CP_ID",
+        "DOCTO_CP_ACR_ID",
+        "IVA_RETENIDO",
+        "ISR_RETENIDO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPORTES_DOCTOS_CP_IMPTOS",
+      "campos": 6,
+      "camposImportantes": [
+        "IMPTE_DOCTO_CP_IMPTO_ID",
+        "IMPTE_DOCTO_CP_ID",
+        "IMPUESTO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPORTES_DOCTOS_PEND_CC",
+      "campos": 12,
+      "camposImportantes": [
+        "IMPTE_DOCTO_PEND_CC_ID",
+        "DOCTO_PEND_CC_ID",
+        "DOCTO_CC_ACR_ID",
+        "CONCEPTO_DOCTO_ACR_ID",
+        "FOLIO_DOCTO_ACR",
+        "IVA_RETENIDO",
+        "ISR_RETENIDO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPUESTOS_ARTICULOS",
+      "campos": 6,
+      "camposImportantes": [
+        "IMPUESTO_ART_ID",
+        "ARTICULO_ID",
+        "IMPUESTO_ID",
+        "UNIDADES_IMPUESTO",
+        "CONJUNTO_SUCURSALES_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPUESTOS_DOCTOS_CM",
+      "campos": 8,
+      "camposImportantes": [
+        "DOCTO_CM_ID",
+        "IMPUESTO_ID",
+        "UNIDADES_IMPUESTO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPUESTOS_DOCTOS_CM_DET",
+      "campos": 11,
+      "camposImportantes": [
+        "DOCTO_CM_ID",
+        "DOCTO_CM_DET_ID",
+        "IMPUESTO_ID",
+        "ID_INTERNO_TIPO_IMPTO",
+        "UNIDADES_IMPUESTO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPUESTOS_DOCTOS_PV",
+      "campos": 9,
+      "camposImportantes": [
+        "DOCTO_PV_ID",
+        "IMPUESTO_ID",
+        "UNIDADES_IMPUESTO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPUESTOS_DOCTOS_PV_DET",
+      "campos": 13,
+      "camposImportantes": [
+        "DOCTO_PV_DET_ID",
+        "IMPUESTO_ID",
+        "DOCTO_PV_ID",
+        "ID_INTERNO_TIPO_IMPTO",
+        "UNIDADES_IMPUESTO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPUESTOS_DOCTOS_VE",
+      "campos": 9,
+      "camposImportantes": [
+        "DOCTO_VE_ID",
+        "IMPUESTO_ID",
+        "UNIDADES_IMPUESTO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "IMPUESTOS_DOCTOS_VE_DET",
+      "campos": 13,
+      "camposImportantes": [
+        "DOCTO_VE_DET_ID",
+        "IMPUESTO_ID",
+        "DOCTO_VE_ID",
+        "ID_INTERNO_TIPO_IMPTO",
+        "UNIDADES_IMPUESTO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "LEYENDAS_FISCALES_DOCTOS",
+      "campos": 4,
+      "camposImportantes": [
+        "LEYENDA_FISCAL_DOCTO_ID",
+        "LEYENDA_FISCAL_ID",
+        "DOCTO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "LIBRES_ARTICULOS",
+      "campos": 4,
+      "camposImportantes": [
+        "ARTICULO_ID",
+        "MEDIDAS"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "LINEAS_ARTICULOS_WEB",
+      "campos": 5,
+      "camposImportantes": [
+        "LINEA_ARTICULO_WEB_ID",
+        "LINEA_ARTICULO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "NIVELES_ARTICULOS",
+      "campos": 8,
+      "camposImportantes": [
+        "NIVEL_ART_ID",
+        "ARTICULO_ID",
+        "ALMACEN_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "OPERACIONES_ARTICULOS_WEB",
+      "campos": 5,
+      "camposImportantes": [
+        "OPERACION_ARTICULO_WEB_ID",
+        "ARTICULO_ID",
+        "ARTICULO_TW_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "PERFILES_DIAS_INVENTARIO",
+      "campos": 6,
+      "camposImportantes": [
+        "PERFIL_DIAS_INV_ID",
+        "ID_INTERNO"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "PERFIL_DIAS_INV_ARTICULOS",
+      "campos": 5,
+      "camposImportantes": [
+        "PERFIL_DIAS_INV_ARTICULO_ID",
+        "PERFIL_DIAS_INV_ALMACEN_ID",
+        "CLAVE_ARTICULO",
+        "ARTICULO_ID",
+        "PERFIL_DIAS_INV_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SNUBE_SUCURSALES",
+      "campos": 6,
+      "camposImportantes": [
+        "SNUBE_SUCURSAL_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SNUBE_SUCURSALES_CONSULTAS",
+      "campos": 3,
+      "camposImportantes": [
+        "SNUBE_SUCURSAL_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SNUBE_SUCURSALES_DISPERSION",
+      "campos": 4,
+      "camposImportantes": [
+        "SNUBE_SUCURSAL_DISP_ID",
+        "SNUBE_SUCURSAL_ID",
+        "ELEMENTO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SNUBE_SUCURSALES_LLAVES",
+      "campos": 2,
+      "camposImportantes": [
+        "SNUBE_SUCURSAL_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SOL_ARTICULOS",
+      "campos": 19,
+      "camposImportantes": [
+        "ARTICULO_ID",
+        "CLASE_ARTICULO_ID",
+        "TIPO_ARTICULO",
+        "ALMACEN_HABITUAL_ID",
+        "PROVEEDOR_HABITUAL_ID",
+        "PROVEEDOR_MAQUILA_ID",
+        "PLANTA_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SOL_CLASES_ARTICULOS",
+      "campos": 4,
+      "camposImportantes": [
+        "CLASE_ART_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SOL_DOCTOS_IN_REG_PROD",
+      "campos": 7,
+      "camposImportantes": [
+        "DOCTO_IN_REG_PROD_ID",
+        "DOCTO_IN_ID",
+        "REG_PROD_ID",
+        "ARTICULO_FABR_ID",
+        "FOLIO_DOCTO_IN",
+        "FOLIO_REG_PROD"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SOL_FOLIOS_MANUFACTURA",
+      "campos": 5,
+      "camposImportantes": [
+        "FOLIO_MANUFACTURA_ID",
+        "PLANTA_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SOL_TIPOS_ARTICULOS",
+      "campos": 2,
+      "camposImportantes": [
+        "TIPO_ARTICULO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SUCURSALES_CATALOGOS",
+      "campos": 4,
+      "camposImportantes": [
+        "SUCURSAL_CATALOGO_ID",
+        "SUCURSAL_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SUCURSALES_CATALOGOS_DET",
+      "campos": 4,
+      "camposImportantes": [
+        "SUCURSAL_CATALOGO_DET_ID",
+        "SUCURSAL_CATALOGO_ID",
+        "ELEMENTO_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "SUCURSALES_DESCONECTADAS",
+      "campos": 6,
+      "camposImportantes": [
+        "SUCURSAL_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "TEMP_VENTAS_DESGL",
+      "campos": 6,
+      "camposImportantes": [
+        "PROCESO_ID",
+        "OBJETO_ID",
+        "UNIDADES1",
+        "UNIDADES2"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "UNIDADES_VENTA",
+      "campos": 4,
+      "camposImportantes": [
+        "UNIDAD_VENTA_ID",
+        "UNIDAD_VENTA"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "USUARIOS_SUCURSALES",
+      "campos": 3,
+      "camposImportantes": [
+        "USUARIO_SUCURSAL_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    },
+    {
+      "nombre": "USUARIOS_SUCURSALES_DET",
+      "campos": 3,
+      "camposImportantes": [
+        "USUARIO_SUCURSAL_DET_ID",
+        "USUARIO_SUCURSAL_ID",
+        "SUCURSAL_ID"
+      ],
+      "performance": {
+        "error": "Sin campo FECHA"
+      }
+    }
+  ]
+}
