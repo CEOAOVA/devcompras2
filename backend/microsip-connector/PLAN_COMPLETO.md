@@ -48,26 +48,26 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                      SUPABASE (PostgreSQL)                       │
 │                                                                  │
-│  Schema: microsip                                               │
+│  Schema: devcompras                                             │
 │                                                                  │
 │  📦 TABLAS DIMENSIONALES (Catálogo):                            │
-│     - microsip.categorias (~50 registros)                       │
-│     - microsip.productos (~5,000 registros)                     │
-│     - microsip.precios_productos (~15,000 registros)            │
-│     - microsip.tiendas (~10 registros)                          │
+│     - devcompras.LINEAS_ARTICULOS (~50 registros)               │
+│     - devcompras.ARTICULOS (~5,000 registros)                   │
+│     - devcompras.PRECIOS_ARTICULOS (~15,000 registros)          │
+│     - devcompras.SUCURSALES (~10 registros)                     │
 │                                                                  │
-│  📊 TABLAS DE HECHOS (Transaccional):                           │
-│     - microsip.fact_ventas (~115,000 registros) 🔥             │
-│     - microsip.inventario_movimientos (millones potenciales)    │
-│     - microsip.inventario_actual (~8,000 registros)             │
+│  📉 TABLAS DE HECHOS (Transaccional):                           │
+│     - devcompras.DOCTOS_PV_DET (Ventas detalladas)              │
+│     - devcompras.EXISTENCIAS (Snapshot diario/horario)          │
+│     - devcompras.DOCTOS_IN_DET (Movimientos de inventario)      │
 │                                                                  │
-│  🔍 VISTAS MATERIALIZADAS (Pre-calculadas):                     │
-│     - microsip.mv_ventas_por_dia                                │
-│     - microsip.mv_top_productos_30d                             │
-│     - microsip.mv_inventario_critico                            │
+│  📊 VISTAS MATERIALIZADAS (Analytics):                          │
+│     - mv_ventas_por_dia                                         │
+│     - mv_top_productos_30d                                      │
+│     - mv_inventario_critico                                     │
 │                                                                  │
 │  📝 AUDITORÍA:                                                  │
-│     - microsip.etl_sync_log (log de sincronizaciones)           │
+│     - devcompras.etl_sync_log (log de sincronizaciones)         │
 └─────────────────────────────────────────────────────────────────┘
                            │
                            │ Supabase Client

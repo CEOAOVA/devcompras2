@@ -28,6 +28,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  */
 async function createSyncLog(syncType, fechaInicio = null, fechaFin = null) {
   const { data, error } = await supabase
+    .schema('devcompras')
     .from('etl_sync_log')
     .insert({
       sync_type: syncType,
@@ -51,6 +52,7 @@ async function createSyncLog(syncType, fechaInicio = null, fechaFin = null) {
  */
 async function updateSyncLog(logId, updates) {
   const { error } = await supabase
+    .schema('devcompras')
     .from('etl_sync_log')
     .update(updates)
     .eq('id', logId);
@@ -91,6 +93,7 @@ async function failSyncLog(logId, error) {
  */
 async function getSyncLogStartTime(logId) {
   const { data } = await supabase
+    .schema('devcompras')
     .from('etl_sync_log')
     .select('started_at')
     .eq('id', logId)
@@ -100,7 +103,7 @@ async function getSyncLogStartTime(logId) {
 }
 
 // ============================================
-// SYNC: CATEGORÍAS
+// SYNC: CATEGORÍAS (LINEAS_ARTICULOS)
 // ============================================
 
 async function syncCategorias() {
@@ -137,7 +140,8 @@ async function syncCategorias() {
 
       // Upsert: INSERT o UPDATE si existe
       const { error } = await supabase
-        .from('categorias')
+        .schema('devcompras')
+        .from('LINEAS_ARTICULOS')
         .upsert(record, { onConflict: 'categoria_id' });
 
       if (error) {
@@ -166,7 +170,7 @@ async function syncCategorias() {
 }
 
 // ============================================
-// SYNC: PRODUCTOS
+// SYNC: PRODUCTOS (ARTICULOS)
 // ============================================
 
 async function syncProductos() {
@@ -223,7 +227,8 @@ async function syncProductos() {
       }));
 
       const { error } = await supabase
-        .from('productos')
+        .schema('devcompras')
+        .from('ARTICULOS')
         .upsert(records, { onConflict: 'articulo_id' });
 
       if (error) {
@@ -257,7 +262,7 @@ async function syncProductos() {
 }
 
 // ============================================
-// SYNC: TIENDAS
+// SYNC: TIENDAS (SUCURSALES)
 // ============================================
 
 async function syncTiendas() {
@@ -290,7 +295,8 @@ async function syncTiendas() {
       };
 
       const { error } = await supabase
-        .from('tiendas')
+        .schema('devcompras')
+        .from('SUCURSALES')
         .upsert(record, { onConflict: 'sucursal_id' });
 
       if (error) {
@@ -317,7 +323,7 @@ async function syncTiendas() {
 }
 
 // ============================================
-// SYNC: VENTAS (Por rango de fechas)
+// SYNC: VENTAS (DOCTOS_PV_DET)
 // ============================================
 
 async function syncVentas(fechaInicio, fechaFin) {
@@ -408,7 +414,8 @@ async function syncVentas(fechaInicio, fechaFin) {
       });
 
       const { error } = await supabase
-        .from('fact_ventas')
+        .schema('devcompras')
+        .from('DOCTOS_PV_DET')
         .upsert(records, { onConflict: 'docto_pv_id,docto_pv_det_id' });
 
       if (error) {
@@ -442,7 +449,7 @@ async function syncVentas(fechaInicio, fechaFin) {
 }
 
 // ============================================
-// SYNC: INVENTARIO ACTUAL (Snapshot)
+// SYNC: INVENTARIO ACTUAL (EXISTENCIAS)
 // ============================================
 
 async function syncInventarioActual() {
@@ -480,13 +487,15 @@ async function syncInventarioActual() {
 
     // Obtener ventas agregadas desde Supabase (más rápido que Microsip)
     const { data: ventas30d } = await supabase
-      .from('fact_ventas')
+      .schema('devcompras')
+      .from('DOCTOS_PV_DET')
       .select('tienda_id, articulo_id, cantidad_neta')
       .gte('fecha', fecha30d)
       .lte('fecha', fechaHoy);
 
     const { data: ventas90d } = await supabase
-      .from('fact_ventas')
+      .schema('devcompras')
+      .from('DOCTOS_PV_DET')
       .select('tienda_id, articulo_id, cantidad_neta')
       .gte('fecha', fecha90d)
       .lte('fecha', fechaHoy);
@@ -552,7 +561,8 @@ async function syncInventarioActual() {
       });
 
       const { error } = await supabase
-        .from('inventario_actual')
+        .schema('devcompras')
+        .from('EXISTENCIAS')
         .upsert(records, { onConflict: 'tienda_id,almacen_id,articulo_id' });
 
       if (error) {
@@ -627,7 +637,7 @@ async function syncFull(diasVentas = 90) {
     // 6. Refrescar vistas materializadas
     console.log('\n═══════════════════════════════════════════════════════');
     console.log('🔄 [ETL] Refrescando vistas materializadas...');
-    await supabase.rpc('refresh_all_materialized_views');
+    await supabase.schema('devcompras').rpc('refresh_all_materialized_views');
     console.log('✅ [ETL] Vistas materializadas actualizadas');
 
     await completeSyncLog(logId, {

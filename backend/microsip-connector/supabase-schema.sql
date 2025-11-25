@@ -5,20 +5,23 @@
 -- para análisis rápido de ventas, inventario y catálogo
 -- ============================================
 
--- Drop existing tables if they exist (for clean setup)
-DROP TABLE IF EXISTS public.fact_ventas CASCADE;
-DROP TABLE IF EXISTS public.inventario_movimientos CASCADE;
-DROP TABLE IF EXISTS public.inventario_actual CASCADE;
-DROP TABLE IF EXISTS public.productos CASCADE;
-DROP TABLE IF EXISTS public.categorias CASCADE;
-DROP TABLE IF EXISTS public.tiendas CASCADE;
-DROP TABLE IF EXISTS public.precios_productos CASCADE;
-DROP TABLE IF EXISTS public.etl_sync_log CASCADE;
+-- Crear esquema dedicado para evitar conflictos con public
+CREATE SCHEMA IF NOT EXISTS devcompras;
+
+-- Drop existing tables in devcompras if they exist (for clean setup)
+DROP TABLE IF EXISTS devcompras.DOCTOS_PV_DET CASCADE;
+DROP TABLE IF EXISTS devcompras.DOCTOS_IN_DET CASCADE;
+DROP TABLE IF EXISTS devcompras.EXISTENCIAS CASCADE;
+DROP TABLE IF EXISTS devcompras.ARTICULOS CASCADE;
+DROP TABLE IF EXISTS devcompras.LINEAS_ARTICULOS CASCADE;
+DROP TABLE IF EXISTS devcompras.SUCURSALES CASCADE;
+DROP TABLE IF EXISTS devcompras.PRECIOS_ARTICULOS CASCADE;
+DROP TABLE IF EXISTS devcompras.etl_sync_log CASCADE;
 
 -- ============================================
--- 1. CATÁLOGO: CATEGORÍAS
+-- 1. CATÁLOGO: CATEGORÍAS (LINEAS_ARTICULOS)
 -- ============================================
-CREATE TABLE public.categorias (
+CREATE TABLE devcompras.LINEAS_ARTICULOS (
   categoria_id VARCHAR(10) PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL,
   descripcion TEXT,
@@ -28,19 +31,19 @@ CREATE TABLE public.categorias (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_categorias_nombre ON public.categorias(nombre);
+CREATE INDEX idx_lineas_nombre ON devcompras.LINEAS_ARTICULOS(nombre);
 
-COMMENT ON TABLE public.categorias IS 'Líneas/categorías de productos desde LINEAS_ARTICULOS';
+COMMENT ON TABLE devcompras.LINEAS_ARTICULOS IS 'Líneas/categorías de productos desde LINEAS_ARTICULOS';
 
 -- ============================================
--- 2. CATÁLOGO: PRODUCTOS
+-- 2. CATÁLOGO: PRODUCTOS (ARTICULOS)
 -- ============================================
-CREATE TABLE public.productos (
+CREATE TABLE devcompras.ARTICULOS (
   articulo_id INTEGER PRIMARY KEY,
   sku VARCHAR(50) UNIQUE NOT NULL,
   nombre VARCHAR(200) NOT NULL,
   descripcion TEXT,
-  categoria_id VARCHAR(10) REFERENCES public.categorias(categoria_id),
+  categoria_id VARCHAR(10) REFERENCES devcompras.LINEAS_ARTICULOS(categoria_id),
   tipo VARCHAR(50),
   tipo_id INTEGER,
   familia_id INTEGER,
@@ -58,19 +61,19 @@ CREATE TABLE public.productos (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_productos_sku ON public.productos(sku);
-CREATE INDEX idx_productos_categoria ON public.productos(categoria_id);
-CREATE INDEX idx_productos_activo ON public.productos(activo);
-CREATE INDEX idx_productos_nombre ON public.productos USING gin(to_tsvector('spanish', nombre));
+CREATE INDEX idx_articulos_sku ON devcompras.ARTICULOS(sku);
+CREATE INDEX idx_articulos_categoria ON devcompras.ARTICULOS(categoria_id);
+CREATE INDEX idx_articulos_activo ON devcompras.ARTICULOS(activo);
+CREATE INDEX idx_articulos_nombre ON devcompras.ARTICULOS USING gin(to_tsvector('spanish', nombre));
 
-COMMENT ON TABLE public.productos IS 'Catálogo de productos desde ARTICULOS';
+COMMENT ON TABLE devcompras.ARTICULOS IS 'Catálogo de productos desde ARTICULOS';
 
 -- ============================================
--- 3. CATÁLOGO: PRECIOS POR LISTA
+-- 3. CATÁLOGO: PRECIOS POR LISTA (PRECIOS_ARTICULOS)
 -- ============================================
-CREATE TABLE public.precios_productos (
+CREATE TABLE devcompras.PRECIOS_ARTICULOS (
   id SERIAL PRIMARY KEY,
-  articulo_id INTEGER REFERENCES public.productos(articulo_id) ON DELETE CASCADE,
+  articulo_id INTEGER REFERENCES devcompras.ARTICULOS(articulo_id) ON DELETE CASCADE,
   lista_precios_id INTEGER NOT NULL,
   nombre_lista VARCHAR(100),
   precio DECIMAL(12, 2) NOT NULL,
@@ -81,15 +84,15 @@ CREATE TABLE public.precios_productos (
   UNIQUE(articulo_id, lista_precios_id)
 );
 
-CREATE INDEX idx_precios_articulo ON public.precios_productos(articulo_id);
-CREATE INDEX idx_precios_lista ON public.precios_productos(lista_precios_id);
+CREATE INDEX idx_precios_articulo ON devcompras.PRECIOS_ARTICULOS(articulo_id);
+CREATE INDEX idx_precios_lista ON devcompras.PRECIOS_ARTICULOS(lista_precios_id);
 
-COMMENT ON TABLE public.precios_productos IS 'Precios por lista desde PRECIOS_ARTICULOS';
+COMMENT ON TABLE devcompras.PRECIOS_ARTICULOS IS 'Precios por lista desde PRECIOS_ARTICULOS';
 
 -- ============================================
--- 4. MAESTRO: TIENDAS/SUCURSALES
+-- 4. MAESTRO: TIENDAS/SUCURSALES (SUCURSALES)
 -- ============================================
-CREATE TABLE public.tiendas (
+CREATE TABLE devcompras.SUCURSALES (
   sucursal_id VARCHAR(10) PRIMARY KEY,
   nombre VARCHAR(100),
   direccion TEXT,
@@ -100,14 +103,14 @@ CREATE TABLE public.tiendas (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_tiendas_activo ON public.tiendas(activo);
+CREATE INDEX idx_sucursales_activo ON devcompras.SUCURSALES(activo);
 
-COMMENT ON TABLE public.tiendas IS 'Catálogo de sucursales/tiendas desde SUCURSALES';
+COMMENT ON TABLE devcompras.SUCURSALES IS 'Catálogo de sucursales/tiendas desde SUCURSALES';
 
 -- ============================================
--- 5. FACT TABLE: VENTAS (Tabla principal de análisis)
+-- 5. FACT TABLE: VENTAS (DOCTOS_PV_DET)
 -- ============================================
-CREATE TABLE public.fact_ventas (
+CREATE TABLE devcompras.DOCTOS_PV_DET (
   id BIGSERIAL PRIMARY KEY,
 
   -- IDs de Microsip
@@ -122,8 +125,8 @@ CREATE TABLE public.fact_ventas (
   semana INTEGER NOT NULL,
 
   -- Dimensiones de negocio
-  tienda_id VARCHAR(10) REFERENCES public.tiendas(sucursal_id),
-  articulo_id INTEGER REFERENCES public.productos(articulo_id),
+  tienda_id VARCHAR(10) REFERENCES devcompras.SUCURSALES(sucursal_id),
+  articulo_id INTEGER REFERENCES devcompras.ARTICULOS(articulo_id),
   sku VARCHAR(50),
   ticket_id VARCHAR(50),
   cliente_id INTEGER,
@@ -155,21 +158,21 @@ CREATE TABLE public.fact_ventas (
 );
 
 -- Índices para optimizar consultas
-CREATE INDEX idx_ventas_fecha ON public.fact_ventas(fecha DESC);
-CREATE INDEX idx_ventas_ano_mes ON public.fact_ventas(ano, mes);
-CREATE INDEX idx_ventas_tienda ON public.fact_ventas(tienda_id);
-CREATE INDEX idx_ventas_articulo ON public.fact_ventas(articulo_id);
-CREATE INDEX idx_ventas_sku ON public.fact_ventas(sku);
-CREATE INDEX idx_ventas_ticket ON public.fact_ventas(ticket_id);
-CREATE INDEX idx_ventas_fecha_tienda ON public.fact_ventas(fecha, tienda_id);
-CREATE INDEX idx_ventas_fecha_articulo ON public.fact_ventas(fecha, articulo_id);
+CREATE INDEX idx_ventas_fecha ON devcompras.DOCTOS_PV_DET(fecha DESC);
+CREATE INDEX idx_ventas_ano_mes ON devcompras.DOCTOS_PV_DET(ano, mes);
+CREATE INDEX idx_ventas_tienda ON devcompras.DOCTOS_PV_DET(tienda_id);
+CREATE INDEX idx_ventas_articulo ON devcompras.DOCTOS_PV_DET(articulo_id);
+CREATE INDEX idx_ventas_sku ON devcompras.DOCTOS_PV_DET(sku);
+CREATE INDEX idx_ventas_ticket ON devcompras.DOCTOS_PV_DET(ticket_id);
+CREATE INDEX idx_ventas_fecha_tienda ON devcompras.DOCTOS_PV_DET(fecha, tienda_id);
+CREATE INDEX idx_ventas_fecha_articulo ON devcompras.DOCTOS_PV_DET(fecha, articulo_id);
 
-COMMENT ON TABLE public.fact_ventas IS 'Fact table de ventas desde DOCTOS_PV + DOCTOS_PV_DET';
+COMMENT ON TABLE devcompras.DOCTOS_PV_DET IS 'Fact table de ventas desde DOCTOS_PV + DOCTOS_PV_DET';
 
 -- ============================================
--- 6. INVENTARIO: MOVIMIENTOS
+-- 6. INVENTARIO: MOVIMIENTOS (DOCTOS_IN_DET)
 -- ============================================
-CREATE TABLE public.inventario_movimientos (
+CREATE TABLE devcompras.DOCTOS_IN_DET (
   id BIGSERIAL PRIMARY KEY,
 
   -- IDs de Microsip
@@ -182,9 +185,9 @@ CREATE TABLE public.inventario_movimientos (
   mes INTEGER NOT NULL,
 
   -- Dimensiones de negocio
-  tienda_id VARCHAR(10) REFERENCES public.tiendas(sucursal_id),
+  tienda_id VARCHAR(10) REFERENCES devcompras.SUCURSALES(sucursal_id),
   almacen_id INTEGER,
-  articulo_id INTEGER REFERENCES public.productos(articulo_id),
+  articulo_id INTEGER REFERENCES devcompras.ARTICULOS(articulo_id),
   sku VARCHAR(50),
 
   -- Tipo de movimiento
@@ -206,24 +209,24 @@ CREATE TABLE public.inventario_movimientos (
 );
 
 -- Índices
-CREATE INDEX idx_inv_mov_fecha ON public.inventario_movimientos(fecha DESC);
-CREATE INDEX idx_inv_mov_tienda ON public.inventario_movimientos(tienda_id);
-CREATE INDEX idx_inv_mov_articulo ON public.inventario_movimientos(articulo_id);
-CREATE INDEX idx_inv_mov_sku ON public.inventario_movimientos(sku);
-CREATE INDEX idx_inv_mov_tipo ON public.inventario_movimientos(tipo_movimiento);
+CREATE INDEX idx_inv_mov_fecha ON devcompras.DOCTOS_IN_DET(fecha DESC);
+CREATE INDEX idx_inv_mov_tienda ON devcompras.DOCTOS_IN_DET(tienda_id);
+CREATE INDEX idx_inv_mov_articulo ON devcompras.DOCTOS_IN_DET(articulo_id);
+CREATE INDEX idx_inv_mov_sku ON devcompras.DOCTOS_IN_DET(sku);
+CREATE INDEX idx_inv_mov_tipo ON devcompras.DOCTOS_IN_DET(tipo_movimiento);
 
-COMMENT ON TABLE public.inventario_movimientos IS 'Movimientos de inventario desde DOCTOS_IN + DOCTOS_IN_DET';
+COMMENT ON TABLE devcompras.DOCTOS_IN_DET IS 'Movimientos de inventario desde DOCTOS_IN + DOCTOS_IN_DET';
 
 -- ============================================
--- 7. INVENTARIO: EXISTENCIAS ACTUALES (Snapshot)
+-- 7. INVENTARIO: EXISTENCIAS ACTUALES (EXISTENCIAS)
 -- ============================================
-CREATE TABLE public.inventario_actual (
+CREATE TABLE devcompras.EXISTENCIAS (
   id BIGSERIAL PRIMARY KEY,
 
   -- Dimensiones
-  tienda_id VARCHAR(10) REFERENCES public.tiendas(sucursal_id),
+  tienda_id VARCHAR(10) REFERENCES devcompras.SUCURSALES(sucursal_id),
   almacen_id INTEGER,
-  articulo_id INTEGER REFERENCES public.productos(articulo_id),
+  articulo_id INTEGER REFERENCES devcompras.ARTICULOS(articulo_id),
   sku VARCHAR(50),
 
   -- Métricas de inventario
@@ -249,18 +252,18 @@ CREATE TABLE public.inventario_actual (
 );
 
 -- Índices
-CREATE INDEX idx_inv_actual_tienda ON public.inventario_actual(tienda_id);
-CREATE INDEX idx_inv_actual_articulo ON public.inventario_actual(articulo_id);
-CREATE INDEX idx_inv_actual_sku ON public.inventario_actual(sku);
-CREATE INDEX idx_inv_actual_dias_inventario ON public.inventario_actual(dias_inventario);
-CREATE INDEX idx_inv_actual_existencia ON public.inventario_actual(existencia);
+CREATE INDEX idx_existencias_tienda ON devcompras.EXISTENCIAS(tienda_id);
+CREATE INDEX idx_existencias_articulo ON devcompras.EXISTENCIAS(articulo_id);
+CREATE INDEX idx_existencias_sku ON devcompras.EXISTENCIAS(sku);
+CREATE INDEX idx_existencias_dias_inv ON devcompras.EXISTENCIAS(dias_inventario);
+CREATE INDEX idx_existencias_existencia ON devcompras.EXISTENCIAS(existencia);
 
-COMMENT ON TABLE public.inventario_actual IS 'Snapshot de existencias actuales + métricas de rotación';
+COMMENT ON TABLE devcompras.EXISTENCIAS IS 'Snapshot de existencias actuales + métricas de rotación';
 
 -- ============================================
 -- 8. ETL: LOG DE SINCRONIZACIÓN
 -- ============================================
-CREATE TABLE public.etl_sync_log (
+CREATE TABLE devcompras.etl_sync_log (
   id BIGSERIAL PRIMARY KEY,
 
   -- Tipo de sincronización
@@ -291,18 +294,18 @@ CREATE TABLE public.etl_sync_log (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE INDEX idx_sync_log_type ON public.etl_sync_log(sync_type);
-CREATE INDEX idx_sync_log_status ON public.etl_sync_log(status);
-CREATE INDEX idx_sync_log_started ON public.etl_sync_log(started_at DESC);
+CREATE INDEX idx_sync_log_type ON devcompras.etl_sync_log(sync_type);
+CREATE INDEX idx_sync_log_status ON devcompras.etl_sync_log(status);
+CREATE INDEX idx_sync_log_started ON devcompras.etl_sync_log(started_at DESC);
 
-COMMENT ON TABLE public.etl_sync_log IS 'Log de sincronizaciones ETL Microsip → Supabase';
+COMMENT ON TABLE devcompras.etl_sync_log IS 'Log de sincronizaciones ETL Microsip → Supabase';
 
 -- ============================================
 -- 9. FUNCIONES AUXILIARES
 -- ============================================
 
 -- Función para actualizar updated_at automáticamente
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE OR REPLACE FUNCTION devcompras.update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -311,27 +314,27 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Triggers para updated_at
-CREATE TRIGGER update_categorias_updated_at BEFORE UPDATE ON public.categorias
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_lineas_updated_at BEFORE UPDATE ON devcompras.LINEAS_ARTICULOS
+  FOR EACH ROW EXECUTE FUNCTION devcompras.update_updated_at_column();
 
-CREATE TRIGGER update_productos_updated_at BEFORE UPDATE ON public.productos
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_articulos_updated_at BEFORE UPDATE ON devcompras.ARTICULOS
+  FOR EACH ROW EXECUTE FUNCTION devcompras.update_updated_at_column();
 
-CREATE TRIGGER update_tiendas_updated_at BEFORE UPDATE ON public.tiendas
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_sucursales_updated_at BEFORE UPDATE ON devcompras.SUCURSALES
+  FOR EACH ROW EXECUTE FUNCTION devcompras.update_updated_at_column();
 
-CREATE TRIGGER update_fact_ventas_updated_at BEFORE UPDATE ON public.fact_ventas
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_doctos_pv_det_updated_at BEFORE UPDATE ON devcompras.DOCTOS_PV_DET
+  FOR EACH ROW EXECUTE FUNCTION devcompras.update_updated_at_column();
 
-CREATE TRIGGER update_inventario_actual_updated_at BEFORE UPDATE ON public.inventario_actual
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_existencias_updated_at BEFORE UPDATE ON devcompras.EXISTENCIAS
+  FOR EACH ROW EXECUTE FUNCTION devcompras.update_updated_at_column();
 
 -- ============================================
 -- 10. VISTAS MATERIALIZADAS (Para análisis rápido)
 -- ============================================
 
 -- Vista: Ventas por día
-CREATE MATERIALIZED VIEW mv_ventas_por_dia AS
+CREATE MATERIALIZED VIEW devcompras.mv_ventas_por_dia AS
 SELECT
   fecha,
   COUNT(DISTINCT ticket_id) as total_tickets,
@@ -340,14 +343,14 @@ SELECT
   SUM(total_partida) as ingresos_totales,
   COUNT(DISTINCT tienda_id) as tiendas_activas,
   COUNT(DISTINCT articulo_id) as productos_vendidos
-FROM public.fact_ventas
+FROM devcompras.DOCTOS_PV_DET
 GROUP BY fecha
 ORDER BY fecha DESC;
 
-CREATE UNIQUE INDEX idx_mv_ventas_dia ON mv_ventas_por_dia(fecha);
+CREATE UNIQUE INDEX idx_mv_ventas_dia ON devcompras.mv_ventas_por_dia(fecha);
 
 -- Vista: Top productos por ventas (últimos 30 días)
-CREATE MATERIALIZED VIEW mv_top_productos_30d AS
+CREATE MATERIALIZED VIEW devcompras.mv_top_productos_30d AS
 SELECT
   p.articulo_id,
   p.sku,
@@ -357,17 +360,17 @@ SELECT
   SUM(fv.total_partida) as ingresos_totales,
   COUNT(DISTINCT fv.ticket_id) as num_tickets,
   AVG(fv.precio_unitario) as precio_promedio
-FROM public.fact_ventas fv
-INNER JOIN public.productos p ON fv.articulo_id = p.articulo_id
+FROM devcompras.DOCTOS_PV_DET fv
+INNER JOIN devcompras.ARTICULOS p ON fv.articulo_id = p.articulo_id
 WHERE fv.fecha >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY p.articulo_id, p.sku, p.nombre, p.categoria_id
 ORDER BY cantidad_vendida DESC
 LIMIT 100;
 
-CREATE UNIQUE INDEX idx_mv_top_productos ON mv_top_productos_30d(articulo_id);
+CREATE UNIQUE INDEX idx_mv_top_productos ON devcompras.mv_top_productos_30d(articulo_id);
 
 -- Vista: Inventario crítico (días < 30)
-CREATE MATERIALIZED VIEW mv_inventario_critico AS
+CREATE MATERIALIZED VIEW devcompras.mv_inventario_critico AS
 SELECT
   ia.tienda_id,
   ia.articulo_id,
@@ -380,26 +383,26 @@ SELECT
   ia.dias_inventario,
   ia.rotacion_anual,
   ia.valor_inventario
-FROM public.inventario_actual ia
-INNER JOIN public.productos p ON ia.articulo_id = p.articulo_id
+FROM devcompras.EXISTENCIAS ia
+INNER JOIN devcompras.ARTICULOS p ON ia.articulo_id = p.articulo_id
 WHERE ia.dias_inventario < 30
   AND ia.existencia_disponible > 0
 ORDER BY ia.dias_inventario ASC;
 
-CREATE INDEX idx_mv_inv_critico_tienda ON mv_inventario_critico(tienda_id);
-CREATE INDEX idx_mv_inv_critico_articulo ON mv_inventario_critico(articulo_id);
+CREATE INDEX idx_mv_inv_critico_tienda ON devcompras.mv_inventario_critico(tienda_id);
+CREATE INDEX idx_mv_inv_critico_articulo ON devcompras.mv_inventario_critico(articulo_id);
 
 -- ============================================
 -- 11. ROW LEVEL SECURITY (RLS) - Opcional
 -- ============================================
 
 -- Habilitar RLS en tablas (descomentar si se requiere)
--- ALTER TABLE public.fact_ventas ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE public.inventario_actual ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE public.productos ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE devcompras.DOCTOS_PV_DET ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE devcompras.EXISTENCIAS ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE devcompras.ARTICULOS ENABLE ROW LEVEL SECURITY;
 
 -- Políticas de ejemplo (ajustar según necesidades)
--- CREATE POLICY "Permitir lectura a usuarios autenticados" ON public.fact_ventas
+-- CREATE POLICY "Permitir lectura a usuarios autenticados" ON devcompras.DOCTOS_PV_DET
 --   FOR SELECT TO authenticated USING (true);
 
 -- ============================================
@@ -407,13 +410,13 @@ CREATE INDEX idx_mv_inv_critico_articulo ON mv_inventario_critico(articulo_id);
 -- ============================================
 
 -- Función para refrescar todas las vistas materializadas
-CREATE OR REPLACE FUNCTION refresh_all_materialized_views()
+CREATE OR REPLACE FUNCTION devcompras.refresh_all_materialized_views()
 RETURNS void AS $$
 BEGIN
-  REFRESH MATERIALIZED VIEW CONCURRENTLY mv_ventas_por_dia;
-  REFRESH MATERIALIZED VIEW CONCURRENTLY mv_top_productos_30d;
-  REFRESH MATERIALIZED VIEW CONCURRENTLY mv_inventario_critico;
+  REFRESH MATERIALIZED VIEW CONCURRENTLY devcompras.mv_ventas_por_dia;
+  REFRESH MATERIALIZED VIEW CONCURRENTLY devcompras.mv_top_productos_30d;
+  REFRESH MATERIALIZED VIEW CONCURRENTLY devcompras.mv_inventario_critico;
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION refresh_all_materialized_views() IS 'Refresca todas las vistas materializadas de análisis';
+COMMENT ON FUNCTION devcompras.refresh_all_materialized_views() IS 'Refresca todas las vistas materializadas de análisis';
