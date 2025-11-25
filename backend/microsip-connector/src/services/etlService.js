@@ -141,7 +141,7 @@ async function syncCategorias() {
       // Upsert: INSERT o UPDATE si existe
       const { error } = await supabase
         .schema('devcompras')
-        .from('LINEAS_ARTICULOS')
+        .from('lineas_articulos')
         .upsert(record, { onConflict: 'categoria_id' });
 
       if (error) {
@@ -190,7 +190,6 @@ async function syncProductos() {
         art.UNIDAD_VENTA,
         art.PESO_UNITARIO
       FROM ARTICULOS art
-      WHERE art.ESTATUS = 'A'
       ORDER BY art.ARTICULO_ID
     `;
 
@@ -228,7 +227,7 @@ async function syncProductos() {
 
       const { error } = await supabase
         .schema('devcompras')
-        .from('ARTICULOS')
+        .from('articulos')
         .upsert(records, { onConflict: 'articulo_id' });
 
       if (error) {
@@ -296,7 +295,7 @@ async function syncTiendas() {
 
       const { error } = await supabase
         .schema('devcompras')
-        .from('SUCURSALES')
+        .from('sucursales')
         .upsert(record, { onConflict: 'sucursal_id' });
 
       if (error) {
@@ -391,10 +390,10 @@ async function syncVentas(fechaInicio, fechaFin) {
 
           tienda_id: v.TIENDA_ID,
           articulo_id: v.ARTICULO_ID,
-          sku: v.SKU?.trim() || null,
-          ticket_id: v.TICKET_ID?.trim() || null,
+          sku: v.SKU ? String(v.SKU).trim() : null,
+          ticket_id: v.TICKET_ID ? String(v.TICKET_ID).trim() : null,
           cliente_id: v.CLIENTE_ID || null,
-          vendedor_id: v.VENDEDOR_ID?.trim() || null,
+          vendedor_id: v.VENDEDOR_ID ? String(v.VENDEDOR_ID).trim() : null,
           almacen_id: v.ALMACEN_ID || null,
 
           cantidad: Number(v.CANTIDAD),
@@ -415,7 +414,7 @@ async function syncVentas(fechaInicio, fechaFin) {
 
       const { error } = await supabase
         .schema('devcompras')
-        .from('DOCTOS_PV_DET')
+        .from('doctos_pv_det')
         .upsert(records, { onConflict: 'docto_pv_id,docto_pv_det_id' });
 
       if (error) {
@@ -488,14 +487,14 @@ async function syncInventarioActual() {
     // Obtener ventas agregadas desde Supabase (más rápido que Microsip)
     const { data: ventas30d } = await supabase
       .schema('devcompras')
-      .from('DOCTOS_PV_DET')
+      .from('doctos_pv_det')
       .select('tienda_id, articulo_id, cantidad_neta')
       .gte('fecha', fecha30d)
       .lte('fecha', fechaHoy);
 
     const { data: ventas90d } = await supabase
       .schema('devcompras')
-      .from('DOCTOS_PV_DET')
+      .from('doctos_pv_det')
       .select('tienda_id, articulo_id, cantidad_neta')
       .gte('fecha', fecha90d)
       .lte('fecha', fechaHoy);
@@ -562,7 +561,7 @@ async function syncInventarioActual() {
 
       const { error } = await supabase
         .schema('devcompras')
-        .from('EXISTENCIAS')
+        .from('existencias')
         .upsert(records, { onConflict: 'tienda_id,almacen_id,articulo_id' });
 
       if (error) {
