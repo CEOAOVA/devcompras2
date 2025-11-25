@@ -261,6 +261,82 @@ async function syncProductos() {
 }
 
 // ============================================
+// SYNC: PRECIOS (PRECIOS_ARTICULOS)
+// ============================================
+
+async function syncPrecios() {
+  const logId = await createSyncLog('precios');
+
+  try {
+    console.log('🔄 [ETL] Sincronizando precios desde Microsip...');
+
+    const sql = `
+      SELECT
+        pa.ARTICULO_ID,
+        pa.PRECIO_EMPRESA_ID as LISTA_PRECIOS_ID,
+        lp.NOMBRE as NOMBRE_LISTA,
+        pa.PRECIO,
+        pa.MONEDA_ID,
+        pa.MARGEN
+      FROM PRECIOS_ART pa
+      LEFT JOIN PRECIOS_EMPRESA lp ON pa.PRECIO_EMPRESA_ID = lp.PRECIO_EMPRESA_ID
+      ORDER BY pa.ARTICULO_ID, pa.PRECIO_EMPRESA_ID
+    `;
+
+    const precios = await firebird.queryAsync(sql);
+    console.log(`💰 Encontrados ${precios.length} precios en Microsip`);
+
+    let inserted = 0;
+    let failed = 0;
+    const batchSize = 500;
+
+    for (let i = 0; i < precios.length; i += batchSize) {
+      const batch = precios.slice(i, i + batchSize);
+
+      const records = batch.map(p => ({
+        articulo_id: p.ARTICULO_ID,
+        lista_precios_id: p.LISTA_PRECIOS_ID,
+        nombre_lista: p.NOMBRE_LISTA?.trim() || 'General',
+        precio: Number(p.PRECIO) || 0,
+        unidad: null, // Microsip a veces no tiene unidad en precios
+        tipo_cambio: 1 // Default
+      }));
+
+      const { error } = await supabase
+        .schema('devcompras')
+        .from('precios_articulos')
+        .upsert(records, { onConflict: 'articulo_id,lista_precios_id' });
+
+      if (error) {
+        console.error(`❌ Error en batch ${i}-${i + batchSize}:`, error.message);
+        failed += batch.length;
+      } else {
+        inserted += batch.length;
+      }
+
+      if ((i + batchSize) % 1000 === 0) {
+        console.log(`📊 Procesados ${i + batchSize} / ${precios.length} precios`);
+      }
+    }
+
+    await completeSyncLog(logId, {
+      records_processed: precios.length,
+      records_inserted: inserted,
+      records_failed: failed
+    });
+
+    console.log(`✅ [ETL] Precios sincronizados: ${inserted} OK, ${failed} errores`);
+
+    return { success: true, inserted, failed, total: precios.length };
+
+  } catch (error) {
+    console.error('❌ [ETL] Error al sincronizar precios:', error);
+    await failSyncLog(logId, error);
+    throw error;
+  }
+}
+
+// ============================================
 // SYNC: TIENDAS (SUCURSALES)
 // ============================================
 
@@ -448,6 +524,122 @@ async function syncVentas(fechaInicio, fechaFin) {
 }
 
 // ============================================
+// SYNC: INVENTARIO MOVIMIENTOS (DOCTOS_IN_DET)
+// ============================================
+
+async function syncInventarioMovimientos(fechaInicio, fechaFin) {
+  const logId = await createSyncLog('inventario_movimientos', fechaInicio, fechaFin);
+
+  try {
+    console.log(`🔄 [ETL] Sincronizando movimientos de inventario desde ${fechaInicio} hasta ${fechaFin}...`);
+
+    const sql = `
+      SELECT
+        di.DOCTO_IN_ID,
+        di.FOLIO,
+        di.FECHA,
+        di.SUCURSAL_ID as TIENDA_ID,
+        di.ALMACEN_ID,
+        di.CONCEPTO_IN_ID,
+        c.NOMBRE as CONCEPTO_MOVIMIENTO,
+        c.TIPO_MOVTO, -- 'E'ntrada, 'S'alida, etc.
+
+        did.DOCTO_IN_DET_ID,
+        did.ARTICULO_ID,
+        did.CLAVE_ARTICULO as SKU,
+        did.UNIDADES as CANTIDAD,
+        did.COSTO_UNITARIO,
+        did.COSTO_TOTAL
+
+      FROM DOCTOS_IN di
+      INNER JOIN DOCTOS_IN_DET did ON di.DOCTO_IN_ID = did.DOCTO_IN_ID
+      LEFT JOIN CONCEPTOS_IN c ON di.CONCEPTO_IN_ID = c.CONCEPTO_IN_ID
+
+      WHERE di.FECHA BETWEEN '${fechaInicio}' AND '${fechaFin}'
+        AND di.CANCELADO = 'N'
+
+      ORDER BY di.FECHA DESC, di.FOLIO DESC
+    `;
+
+    const startTime = Date.now();
+    const movimientos = await firebird.queryAsync(sql);
+    const queryTime = Date.now() - startTime;
+
+    console.log(`📊 Encontrados ${movimientos.length} movimientos en ${queryTime}ms`);
+
+    let inserted = 0;
+    let failed = 0;
+    const batchSize = 500;
+
+    for (let i = 0; i < movimientos.length; i += batchSize) {
+      const batch = movimientos.slice(i, i + batchSize);
+
+      const records = batch.map(m => {
+        const fecha = new Date(m.FECHA);
+        let tipoMovimiento = 'OTRO';
+        if (m.TIPO_MOVTO === 'E') tipoMovimiento = 'ENTRADA';
+        if (m.TIPO_MOVTO === 'S') tipoMovimiento = 'SALIDA';
+        if (m.TIPO_MOVTO === 'T') tipoMovimiento = 'TRASPASO';
+        if (m.TIPO_MOVTO === 'A') tipoMovimiento = 'AJUSTE'; // Asumiendo 'A'
+
+        return {
+          docto_in_id: m.DOCTO_IN_ID,
+          docto_in_det_id: m.DOCTO_IN_DET_ID,
+
+          fecha: m.FECHA,
+          ano: fecha.getFullYear(),
+          mes: fecha.getMonth() + 1,
+
+          tienda_id: m.TIENDA_ID,
+          almacen_id: m.ALMACEN_ID,
+          articulo_id: m.ARTICULO_ID,
+          sku: m.SKU ? String(m.SKU).trim() : null,
+
+          tipo_movimiento: tipoMovimiento,
+          concepto_movimiento: m.CONCEPTO_MOVIMIENTO?.trim() || null,
+          folio: m.FOLIO ? String(m.FOLIO).trim() : null,
+
+          cantidad: Number(m.CANTIDAD),
+          costo_unitario: Number(m.COSTO_UNITARIO) || 0,
+          costo_total: Number(m.COSTO_TOTAL) || 0
+        };
+      });
+
+      const { error } = await supabase
+        .schema('devcompras')
+        .from('doctos_in_det')
+        .upsert(records, { onConflict: 'docto_in_id,docto_in_det_id' });
+
+      if (error) {
+        console.error(`❌ Error en batch ${i}-${i + batchSize}:`, error.message);
+        failed += batch.length;
+      } else {
+        inserted += batch.length;
+      }
+
+      if ((i + batchSize) % 1000 === 0) {
+        console.log(`📊 Procesados ${i + batchSize} / ${movimientos.length} movimientos`);
+      }
+    }
+
+    await completeSyncLog(logId, {
+      records_processed: movimientos.length,
+      records_inserted: inserted,
+      records_failed: failed
+    });
+
+    console.log(`✅ [ETL] Movimientos sincronizados: ${inserted} OK, ${failed} errores`);
+
+    return { success: true, inserted, failed, total: movimientos.length };
+
+  } catch (error) {
+    console.error('❌ [ETL] Error al sincronizar movimientos:', error);
+    await failSyncLog(logId, error);
+    throw error;
+  }
+}
+
+// ============================================
 // SYNC: INVENTARIO ACTUAL (EXISTENCIAS)
 // ============================================
 
@@ -607,7 +799,9 @@ async function syncFull(diasVentas = 90) {
       categorias: null,
       tiendas: null,
       productos: null,
+      precios: null,
       ventas: null,
+      movimientos: null,
       inventario: null
     };
 
@@ -623,17 +817,25 @@ async function syncFull(diasVentas = 90) {
     console.log('\n═══════════════════════════════════════════════════════');
     results.productos = await syncProductos();
 
-    // 4. Ventas (últimos X días)
+    // 4. Precios
+    console.log('\n═══════════════════════════════════════════════════════');
+    results.precios = await syncPrecios();
+
+    // 5. Ventas (últimos X días)
     console.log('\n═══════════════════════════════════════════════════════');
     const fechaFin = new Date().toISOString().split('T')[0];
     const fechaInicio = new Date(Date.now() - diasVentas * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     results.ventas = await syncVentas(fechaInicio, fechaFin);
 
-    // 5. Inventario Actual
+    // 6. Movimientos de Inventario (mismo rango que ventas)
+    console.log('\n═══════════════════════════════════════════════════════');
+    results.movimientos = await syncInventarioMovimientos(fechaInicio, fechaFin);
+
+    // 7. Inventario Actual
     console.log('\n═══════════════════════════════════════════════════════');
     results.inventario = await syncInventarioActual();
 
-    // 6. Refrescar vistas materializadas
+    // 8. Refrescar vistas materializadas
     console.log('\n═══════════════════════════════════════════════════════');
     console.log('🔄 [ETL] Refrescando vistas materializadas...');
     await supabase.schema('devcompras').rpc('refresh_all_materialized_views');
@@ -651,7 +853,9 @@ async function syncFull(diasVentas = 90) {
     console.log(`   Categorías:    ${results.categorias.inserted} registros`);
     console.log(`   Tiendas:       ${results.tiendas.inserted} registros`);
     console.log(`   Productos:     ${results.productos.inserted} registros`);
+    console.log(`   Precios:       ${results.precios.inserted} registros`);
     console.log(`   Ventas:        ${results.ventas.inserted} registros`);
+    console.log(`   Movimientos:   ${results.movimientos.inserted} registros`);
     console.log(`   Inventario:    ${results.inventario.inserted} registros`);
     console.log('\n═══════════════════════════════════════════════════════\n');
 
@@ -679,8 +883,10 @@ function getWeekNumber(date) {
 module.exports = {
   syncCategorias,
   syncProductos,
+  syncPrecios,
   syncTiendas,
   syncVentas,
+  syncInventarioMovimientos,
   syncInventarioActual,
   syncFull
 };

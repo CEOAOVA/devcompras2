@@ -73,16 +73,32 @@ async function syncYearRange(startYear, endYear) {
     console.log('🔄 Productos...');
     await etl.syncProductos();
 
+    console.log('🔄 Precios...');
+    await etl.syncPrecios();
+
     console.log('\n✅ Catálogo sincronizado\n');
   } catch (error) {
     console.error('❌ Error al sincronizar catálogo:', error.message);
     console.error('   Continuando con ventas...\n');
   }
 
-  // Sincronizar ventas año por año
+  // Sincronizar ventas y movimientos año por año
   for (let year = startYear; year <= endYear; year++) {
-    const result = await syncYear(year);
-    results.push(result);
+    // 1. Ventas
+    const resultVentas = await syncYear(year);
+    results.push(resultVentas);
+
+    // 2. Movimientos de Inventario
+    const fechaInicio = `${year}-01-01`;
+    const fechaFin = `${year}-12-31`;
+
+    console.log(`📦 Sincronizando movimientos de inventario ${year}...`);
+    try {
+      const resultMovs = await etl.syncInventarioMovimientos(fechaInicio, fechaFin);
+      console.log(`   Movimientos: ${resultMovs.inserted} insertados\n`);
+    } catch (error) {
+      console.error(`❌ Error en movimientos ${year}: ${error.message}\n`);
+    }
   }
 
   // Sincronizar año actual hasta hoy
@@ -103,7 +119,12 @@ async function syncYearRange(startYear, endYear) {
       const duration = Math.round((Date.now() - startTime) / 1000);
 
       console.log(`\n✅ Año ${currentYear} completado en ${duration} segundos`);
-      console.log(`   Registros: ${result.inserted} insertados\n`);
+      console.log(`   Ventas: ${result.inserted} insertados\n`);
+
+      // Sincronizar movimientos del año actual
+      console.log(`📦 Sincronizando movimientos de inventario ${currentYear}...`);
+      const resultMovs = await etl.syncInventarioMovimientos(fechaInicio, hoy);
+      console.log(`   Movimientos: ${resultMovs.inserted} insertados\n`);
 
       // Reemplazar resultado del año actual
       const currentYearIndex = results.findIndex(r => r.year === currentYear);

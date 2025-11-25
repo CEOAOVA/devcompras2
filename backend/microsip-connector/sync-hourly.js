@@ -85,7 +85,12 @@ async function syncHourly() {
     const resultVentas = await etl.syncVentas(fechaInicio, fechaFin);
     log(`✅ Ventas: ${resultVentas.inserted} registros insertados`);
 
-    // 3. Actualizar inventario actual
+    // 3. Sincronizar movimientos de inventario de la última hora
+    log('\n📦 Sincronizando movimientos...');
+    const resultMovimientos = await etl.syncInventarioMovimientos(fechaInicio, fechaFin);
+    log(`✅ Movimientos: ${resultMovimientos.inserted} registros insertados`);
+
+    // 4. Actualizar inventario actual
     log('\n📦 Actualizando inventario...');
     const resultInventario = await etl.syncInventarioActual();
     log(`✅ Inventario: ${resultInventario.inserted} registros actualizados`);
@@ -95,15 +100,16 @@ async function syncHourly() {
     log('\n═'.repeat(70));
     log('✅ SINCRONIZACIÓN COMPLETADA EXITOSAMENTE');
     log(`⏱️  Duración: ${duration} segundos`);
-    log(`📊 Total registros procesados: ${resultVentas.total + resultInventario.total}`);
+    log(`📊 Total registros procesados: ${resultVentas.total + resultMovimientos.total + resultInventario.total}`);
     log('═'.repeat(70));
 
-    // 5. Guardar resumen en JSON
+    // 6. Guardar resumen en JSON
     const summary = {
       timestamp: new Date().toISOString(),
       success: true,
       duration_seconds: duration,
       ventas: resultVentas,
+      movimientos: resultMovimientos,
       inventario: resultInventario
     };
 

@@ -1,0 +1,34 @@
+
+╔════════════════════════════════════════════════════════╗
+║  ETL: MICROSIP → SUPABASE                              ║
+╚════════════════════════════════════════════════════════╝
+
+📋 Sincronizando productos
+
+🔄 [ETL] Sincronizando productos desde Microsip...
+📦 Encontrados 10715 productos en Microsip
+📊 Procesados 500 / 10715 productos
+📊 Procesados 1000 / 10715 productos
+📊 Procesados 1500 / 10715 productos
+📊 Procesados 2000 / 10715 productos
+📊 Procesados 2500 / 10715 productos
+📊 Procesados 3000 / 10715 productos
+📊 Procesados 3500 / 10715 productos
+📊 Procesados 4000 / 10715 productos
+📊 Procesados 4500 / 10715 productos
+📊 Procesados 5000 / 10715 productos
+📊 Procesados 5500 / 10715 productos
+📊 Procesados 6000 / 10715 productos
+📊 Procesados 6500 / 10715 productos
+📊 Procesados 7000 / 10715 productos
+📊 Procesados 7500 / 10715 productos
+📊 Procesados 8000 / 10715 productos
+📊 Procesados 8500 / 10715 productos
+📊 Procesados 9000 / 10715 productos
+📊 Procesados 9500 / 10715 productos
+📊 Procesados 10000 / 10715 productos
+📊 Procesados 10500 / 10715 productos
+✅ [ETL] Productos sincronizados: 10715 OK, 0 errores
+
+✅ Sincronización completada exitosamente
+

@@ -8,7 +8,10 @@
  *   node sync-etl.js categorias              # Solo categorías
  *   node sync-etl.js productos               # Solo productos
  *   node sync-etl.js tiendas                 # Solo tiendas
+ *   node sync-etl.js tiendas                 # Solo tiendas
+ *   node sync-etl.js precios                 # Solo precios
  *   node sync-etl.js ventas 2025-01-01 2025-01-31  # Ventas por rango
+ *   node sync-etl.js movimientos 2025-01-01 2025-01-31 # Movimientos por rango
  *   node sync-etl.js inventario              # Inventario actual
  */
 
@@ -47,6 +50,11 @@ async function main() {
         await etl.syncTiendas();
         break;
 
+      case 'precios':
+        console.log('📋 Sincronizando precios\n');
+        await etl.syncPrecios();
+        break;
+
       case 'ventas':
         if (!arg1 || !arg2) {
           console.error('❌ Error: Se requieren fechas de inicio y fin');
@@ -55,6 +63,16 @@ async function main() {
         }
         console.log(`📋 Sincronizando ventas desde ${arg1} hasta ${arg2}\n`);
         await etl.syncVentas(arg1, arg2);
+        break;
+
+      case 'movimientos':
+        if (!arg1 || !arg2) {
+          console.error('❌ Error: Se requieren fechas de inicio y fin');
+          console.log('   Uso: node sync-etl.js movimientos YYYY-MM-DD YYYY-MM-DD');
+          process.exit(1);
+        }
+        console.log(`📋 Sincronizando movimientos desde ${arg1} hasta ${arg2}\n`);
+        await etl.syncInventarioMovimientos(arg1, arg2);
         break;
 
       case 'inventario':
@@ -69,7 +87,9 @@ async function main() {
         console.log('  categorias                - Sincronizar categorías');
         console.log('  productos                 - Sincronizar productos');
         console.log('  tiendas                   - Sincronizar tiendas');
+        console.log('  precios                   - Sincronizar precios');
         console.log('  ventas FECHA_INI FECHA_FIN - Sincronizar ventas por rango');
+        console.log('  movimientos FECHA_INI FECHA_FIN - Sincronizar movimientos por rango');
         console.log('  inventario                - Sincronizar inventario actual');
         console.log('\nEjemplos:');
         console.log('  node sync-etl.js full');
