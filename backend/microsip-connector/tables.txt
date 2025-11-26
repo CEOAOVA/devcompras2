@@ -1,0 +1,791 @@
+
+🔍 BÚSQUEDA RÁPIDA DE TABLAS Y VISTAS - MICROSIP
+
+Host: 192.65.134.78:3050
+
+🔄 Conectando...
+
+✅ CONECTADO
+
+════════════════════════════════════════════════════════════════════════════════
+
+📋 VISTAS:
+
+Encontradas: 2 vistas
+
+────────────────────────────────────────────────────────────────────────────────
+
+📊 VISTA 1/2: VW_FACT_VENTAS
+
+📋 Campos (14):
+  FECHA                          | DATE
+  HORA                           | TIME
+  TIENDA_ID                      | VARCHAR
+  TICKET_ID                      | VARCHAR
+  SKU                            | VARCHAR
+  CANTIDAD                       | BIGINT
+  PRECIO_UNITARIO                | BIGINT
+  DESCUENTO                      | BIGINT
+  IMPUESTO                       | BIGINT
+  COSTO_UNITARIO                 | INTEGER
+  CANAL                          | CHAR
+  VENDEDOR_ID                    | VARCHAR
+  CLIENTE_ID                     | VARCHAR
+  MARGEN_UNITARIO                | INTEGER
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    FECHA                    : 2025-01-02
+    HORA                     : 1970-01-01
+    TIENDA_ID                : AFULL
+    TICKET_ID                : AR7931
+    SKU                      : 11517619020 *1
+    CANTIDAD                 : 1
+    PRECIO_UNITARIO          : 335.35
+    DESCUENTO                : 0
+    IMPUESTO                 : 389
+    COSTO_UNITARIO           : 0
+    CANAL                    : NULL
+    VENDEDOR_ID              : EGO
+    CLIENTE_ID               : NULL
+    MARGEN_UNITARIO          : 0
+
+  📌 Registro 2:
+    FECHA                    : 2025-01-02
+    HORA                     : 1970-01-01
+    TIENDA_ID                : AFULL
+    TICKET_ID                : AR7932
+    SKU                      : 65816936953 *1
+    CANTIDAD                 : 1
+    PRECIO_UNITARIO          : 111.207
+    DESCUENTO                : 0
+    IMPUESTO                 : 129
+    COSTO_UNITARIO           : 0
+    CANAL                    : NULL
+    VENDEDOR_ID              : EGO
+    CLIENTE_ID               : NULL
+    MARGEN_UNITARIO          : 0
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+📊 VISTA 2/2: VW_VENTAS_2025
+
+📋 Campos (9):
+  DOCT                           | CHAR
+  FOLIO                          | DATE
+  FECHA                          | CHAR
+  NOM_CAJA                       | VARCHAR
+  NOM_SUCURSAL                   | VARCHAR
+  NOM_VEND                       | VARCHAR
+  TOTAL_SIN_IVA                  | BIGINT
+  HORA                           | TIME
+  FORMA_COBRO                    | BLOB
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    DOCT                     : VENTA MOSTRADOR
+    FOLIO                    : 2025-08-01
+    FECHA                    : AR0009485
+    NOM_CAJA                 : MERCADO LIBRE FULL 01
+    NOM_SUCURSAL             : 14. FULL
+    NOM_VEND                 : ESTEFANY GARDUÑO
+    TOTAL_SIN_IVA            : 430.17
+    HORA                     : 1970-01-01
+    FORMA_COBRO              : (transaction, callback) => {
+        // callback(error, nameField, eventEmitter, row)
+        const singleTransaction = callback === undefined;
+        if (singleTransaction) {
+            callback = transaction;
+            statement.connection.startTransaction(Const.ISOLATION_READ_UNCOMMITTED, (err, transaction) => {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                cbTransaction(transaction, singleTransaction, callback);
+            });
+        } else {
+            cbTransaction(transaction, singleTransaction, callback);
+        }
+    }
+
+  📌 Registro 2:
+    DOCT                     : VENTA MOSTRADOR
+    FOLIO                    : 2025-08-01
+    FECHA                    : AR0009486
+    NOM_CAJA                 : MERCADO LIBRE FULL 01
+    NOM_SUCURSAL             : 14. FULL
+    NOM_VEND                 : ESTEFANY GARDUÑO
+    TOTAL_SIN_IVA            : 300.86
+    HORA                     : 1970-01-01
+    FORMA_COBRO              : (transaction, callback) => {
+        // callback(error, nameField, eventEmitter, row)
+        const singleTransaction = callback === undefined;
+        if (singleTransaction) {
+            callback = transaction;
+            statement.connection.startTransaction(Const.ISOLATION_READ_UNCOMMITTED, (err, transaction) => {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                cbTransaction(transaction, singleTransaction, callback);
+            });
+        } else {
+            cbTransaction(transaction, singleTransaction, callback);
+        }
+    }
+
+
+
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+
+📋 TABLAS:
+
+Encontradas: 14 tablas
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 1/14: DESGLOSE_EN_DISCRETOS_INVFIS
+
+📋 Campos (4):
+  DESGL_DISCRETO_INVFIS_ID       | INTEGER
+  DOCTO_INVFIS_DET_ID            | INTEGER
+  ART_DISCRETO_ID                | INTEGER
+  UNIDADES                       | BIGINT
+
+📄 MUESTRA (2 registros):
+  (Sin datos)
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 2/14: DOCTOS_INVFIS
+
+📋 Campos (19):
+  DOCTO_INVFIS_ID                | INTEGER
+  ALMACEN_ID                     | INTEGER
+  SUCURSAL_ID                    | INTEGER
+  FOLIO                          | CHAR
+  FECHA                          | DATE
+  CANCELADO                      | CHAR
+  APLICADO                       | CHAR
+  DESCRIPCION                    | VARCHAR
+  DOCTO_IN_ID_ENT                | INTEGER
+  DOCTO_IN_ID_SAL                | INTEGER
+  USUARIO_CREADOR                | VARCHAR
+  FECHA_HORA_CREACION            | TIMESTAMP
+  USUARIO_AUT_CREACION           | VARCHAR
+  USUARIO_ULT_MODIF              | VARCHAR
+  FECHA_HORA_ULT_MODIF           | TIMESTAMP
+  USUARIO_AUT_MODIF              | VARCHAR
+  USUARIO_CANCELACION            | VARCHAR
+  FECHA_HORA_CANCELACION         | TIMESTAMP
+  USUARIO_AUT_CANCELACION        | VARCHAR
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    DOCTO_INVFIS_ID          : 274,979
+    ALMACEN_ID               : 19
+    SUCURSAL_ID              : 26,419
+    FOLIO                    : 000000206
+    FECHA                    : 2020-11-06
+    CANCELADO                : N
+    APLICADO                 : S
+    DESCRIPCION              : AJUSTE POR DEVOLUCION DE VENTAS DE POSICIONAMIENTO OCTUBRE 2020
+    DOCTO_IN_ID_ENT          : NULL
+    DOCTO_IN_ID_SAL          : 274,983
+    USUARIO_CREADOR          : SYSDBA
+    FECHA_HORA_CREACION      : 2020-11-06
+    USUARIO_AUT_CREACION     : NULL
+    USUARIO_ULT_MODIF        : SYSDBA
+    FECHA_HORA_ULT_MODIF     : 2020-11-06
+    USUARIO_AUT_MODIF        : NULL
+    USUARIO_CANCELACION      : NULL
+    FECHA_HORA_CANCELACION   : NULL
+    USUARIO_AUT_CANCELACION  : NULL
+
+  📌 Registro 2:
+    DOCTO_INVFIS_ID          : 1,149,869
+    ALMACEN_ID               : 19
+    SUCURSAL_ID              : 26,419
+    FOLIO                    : 000000207
+    FECHA                    : 2021-08-19
+    CANCELADO                : N
+    APLICADO                 : S
+    DESCRIPCION              : SE DA DE BAJA POR QUE SISTEMA REGISTRO MAL LA COMPRA ERAN 4 KITS CON 12 PZ Y LO REGISTRO COMO PIEZAS INDIVIDUALES LA COMPRA FUE EL DIA 05/01/2021
+    DOCTO_IN_ID_ENT          : NULL
+    DOCTO_IN_ID_SAL          : 1,149,913
+    USUARIO_CREADOR          : OSCARALBARRAN
+    FECHA_HORA_CREACION      : 2021-08-19
+    USUARIO_AUT_CREACION     : NULL
+    USUARIO_ULT_MODIF        : OSCARALBARRAN
+    FECHA_HORA_ULT_MODIF     : 2021-08-19
+    USUARIO_AUT_MODIF        : NULL
+    USUARIO_CANCELACION      : NULL
+    FECHA_HORA_CANCELACION   : NULL
+    USUARIO_AUT_CANCELACION  : NULL
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 3/14: DOCTOS_INVFIS_DET
+
+📋 Campos (7):
+  DOCTO_INVFIS_DET_ID            | INTEGER
+  DOCTO_INVFIS_ID                | INTEGER
+  CLAVE_ARTICULO                 | VARCHAR
+  ARTICULO_ID                    | INTEGER
+  UNIDADES                       | BIGINT
+  DOCTO_IN_DET_ID_ENT            | INTEGER
+  DOCTO_IN_DET_ID_SAL            | INTEGER
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    DOCTO_INVFIS_DET_ID      : 274,980
+    DOCTO_INVFIS_ID          : 274,979
+    CLAVE_ARTICULO           : 11427508969
+    ARTICULO_ID              : 231,684
+    UNIDADES                 : 0
+    DOCTO_IN_DET_ID_ENT      : NULL
+    DOCTO_IN_DET_ID_SAL      : 274,984
+
+  📌 Registro 2:
+    DOCTO_INVFIS_DET_ID      : 1,149,870
+    DOCTO_INVFIS_ID          : 1,149,869
+    CLAVE_ARTICULO           : 11340034068-8
+    ARTICULO_ID              : 267,886
+    UNIDADES                 : 0
+    DOCTO_IN_DET_ID_ENT      : NULL
+    DOCTO_IN_DET_ID_SAL      : 1,149,914
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 4/14: FOLIOS_VENTAS
+
+📋 Campos (7):
+  FOLIO_VENTAS_ID                | INTEGER
+  SISTEMA                        | CHAR
+  TIPO_DOCTO                     | CHAR
+  SUCURSAL_ID                    | INTEGER
+  SERIE                          | VARCHAR
+  CONSECUTIVO                    | INTEGER
+  MODALIDAD_FACTURACION          | VARCHAR
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    FOLIO_VENTAS_ID          : 20,782
+    SISTEMA                  : TR
+    TIPO_DOCTO               : T
+    SUCURSAL_ID              : 26,419
+    SERIE                    : MT
+    CONSECUTIVO              : 1
+    MODALIDAD_FACTURACION    : CFDI
+
+  📌 Registro 2:
+    FOLIO_VENTAS_ID          : 20,835
+    SISTEMA                  : VE
+    TIPO_DOCTO               : D
+    SUCURSAL_ID              : 26,419
+    SERIE                    : D
+    CONSECUTIVO              : 1,678
+    MODALIDAD_FACTURACION    : CFDI
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 5/14: LIBRES_INVFIS
+
+📋 Campos (1):
+  DOCTO_INVFIS_ID                | INTEGER
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    DOCTO_INVFIS_ID          : 274,979
+
+  📌 Registro 2:
+    DOCTO_INVFIS_ID          : 1,149,869
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 6/14: PERFILES_DIAS_INVENTARIO
+
+📋 Campos (6):
+  PERFIL_DIAS_INV_ID             | INTEGER
+  NOMBRE                         | VARCHAR
+  DIAS_INVENTARIO_MAX            | SMALLINT
+  DIAS_INVENTARIO_MIN            | SMALLINT
+  DIAS_ENTREGA_PROM              | SMALLINT
+  ID_INTERNO                     | CHAR
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    PERFIL_DIAS_INV_ID       : 330
+    NOMBRE                   : Excluir del c�lculo
+    DIAS_INVENTARIO_MAX      : 0
+    DIAS_INVENTARIO_MIN      : 0
+    DIAS_ENTREGA_PROM        : 0
+    ID_INTERNO               : E
+
+  📌 Registro 2:
+    PERFIL_DIAS_INV_ID       : 239,363
+    NOMBRE                   : FREY
+    DIAS_INVENTARIO_MAX      : 90
+    DIAS_INVENTARIO_MIN      : 30
+    DIAS_ENTREGA_PROM        : 65
+    ID_INTERNO               : NULL
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 7/14: PERFIL_DIAS_INV_ALMACENES
+
+📋 Campos (4):
+  PERFIL_DIAS_INV_ALMACEN_ID     | INTEGER
+  ALMACEN_ID                     | INTEGER
+  PERFIL_DIAS_INV_ID             | INTEGER
+  APLICA_SALIDAS_TRASPASOS       | ID:23
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    PERFIL_DIAS_INV_ALMACEN_ID: 261,494
+    ALMACEN_ID               : 238,178
+    PERFIL_DIAS_INV_ID       : 239,363
+    APLICA_SALIDAS_TRASPASOS : NULL
+
+  📌 Registro 2:
+    PERFIL_DIAS_INV_ALMACEN_ID: 261,500
+    ALMACEN_ID               : 251,413
+    PERFIL_DIAS_INV_ID       : 330
+    APLICA_SALIDAS_TRASPASOS : NULL
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 8/14: PERFIL_DIAS_INV_ARTICULOS
+
+📋 Campos (5):
+  PERFIL_DIAS_INV_ARTICULO_ID    | INTEGER
+  PERFIL_DIAS_INV_ALMACEN_ID     | INTEGER
+  CLAVE_ARTICULO                 | VARCHAR
+  ARTICULO_ID                    | INTEGER
+  PERFIL_DIAS_INV_ID             | INTEGER
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    PERFIL_DIAS_INV_ARTICULO_ID: 261,805
+    PERFIL_DIAS_INV_ALMACEN_ID: 261,800
+    CLAVE_ARTICULO           : 11117547842-2
+    ARTICULO_ID              : 221,593
+    PERFIL_DIAS_INV_ID       : 239,363
+
+  📌 Registro 2:
+    PERFIL_DIAS_INV_ARTICULO_ID: 261,806
+    PERFIL_DIAS_INV_ALMACEN_ID: 261,800
+    CLAVE_ARTICULO           : 11127552280-1
+    ARTICULO_ID              : 221,105
+    PERFIL_DIAS_INV_ID       : 239,363
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 9/14: PERFIL_DIAS_INV_CLASIFICADORES
+
+📋 Campos (6):
+  PERFIL_DIAS_INV_CLASIFICADOR_ID | INTEGER
+  PERFIL_DIAS_INV_ALMACEN_ID     | INTEGER
+  CLASIFICADOR_ID                | INTEGER
+  VALOR_CLASIF_ID                | INTEGER
+  PERFIL_DIAS_INV_ID             | INTEGER
+  POSICION                       | SMALLINT
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    PERFIL_DIAS_INV_CLASIFICADOR_ID: 1,188,666
+    PERFIL_DIAS_INV_ALMACEN_ID: 261,800
+    CLASIFICADOR_ID          : 365,318
+    VALOR_CLASIF_ID          : NULL
+    PERFIL_DIAS_INV_ID       : 239,363
+    POSICION                 : 1
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 10/14: PERFIL_DIAS_INV_GRUPOS
+
+📋 Campos (4):
+  PERFIL_DIAS_INV_GRUPOS_ID      | INTEGER
+  PERFIL_DIAS_INV_ALMACEN_ID     | INTEGER
+  GRUPO_LINEA_ID                 | INTEGER
+  PERFIL_DIAS_INV_ID             | INTEGER
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    PERFIL_DIAS_INV_GRUPOS_ID: 261,801
+    PERFIL_DIAS_INV_ALMACEN_ID: 261,800
+    GRUPO_LINEA_ID           : 3,032
+    PERFIL_DIAS_INV_ID       : 239,363
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 11/14: PERFIL_DIAS_INV_LINEAS
+
+📋 Campos (4):
+  PERFIL_DIAS_INV_LINEAS_ID      | INTEGER
+  PERFIL_DIAS_INV_ALMACEN_ID     | INTEGER
+  LINEA_ARTICULO_ID              | INTEGER
+  PERFIL_DIAS_INV_ID             | INTEGER
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    PERFIL_DIAS_INV_LINEAS_ID: 261,495
+    PERFIL_DIAS_INV_ALMACEN_ID: 261,494
+    LINEA_ARTICULO_ID        : 3,035
+    PERFIL_DIAS_INV_ID       : 239,363
+
+  📌 Registro 2:
+    PERFIL_DIAS_INV_LINEAS_ID: 261,502
+    PERFIL_DIAS_INV_ALMACEN_ID: 261,501
+    LINEA_ARTICULO_ID        : 3,034
+    PERFIL_DIAS_INV_ID       : 330
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 12/14: SOL_FOLIOS_MANUFACTURA
+
+📋 Campos (5):
+  FOLIO_MANUFACTURA_ID           | INTEGER
+  TIPO_DOCTO                     | CHAR
+  PLANTA_ID                      | INTEGER
+  SERIE                          | VARCHAR
+  CONSECUTIVO                    | INTEGER
+
+📄 MUESTRA (2 registros):
+  (Sin datos)
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 13/14: TEMP_VENTAS_DESGL
+
+📋 Campos (6):
+  PROCESO_ID                     | INTEGER
+  OBJETO_ID                      | INTEGER
+  UNIDADES1                      | BIGINT
+  IMPORTE1                       | BIGINT
+  UNIDADES2                      | BIGINT
+  IMPORTE2                       | BIGINT
+
+📄 MUESTRA (2 registros):
+  (Sin datos)
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+🗂️  TABLA 14/14: UNIDADES_VENTA
+
+📋 Campos (4):
+  UNIDAD_VENTA_ID                | INTEGER
+  UNIDAD_VENTA                   | VARCHAR
+  CLAVE_SAT                      | VARCHAR
+  SIMBOLO_SAT                    | VARCHAR
+
+📄 MUESTRA (2 registros):
+
+  📌 Registro 1:
+    UNIDAD_VENTA_ID          : 202
+    UNIDAD_VENTA             : Pieza
+    CLAVE_SAT                : H87
+    SIMBOLO_SAT              : NULL
+
+  📌 Registro 2:
+    UNIDAD_VENTA_ID          : 203
+    UNIDAD_VENTA             : Kilogramo
+    CLAVE_SAT                : KGM
+    SIMBOLO_SAT              : kg
+
+
+
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+
+📊 RESUMEN:
+
+✅ Total vistas: 2
+✅ Total tablas: 14
+
+📋 Vistas encontradas:
+  1. VW_FACT_VENTAS
+  2. VW_VENTAS_2025
+
+🗂️  Tablas encontradas:
+  1. DESGLOSE_EN_DISCRETOS_INVFIS
+  2. DOCTOS_INVFIS
+  3. DOCTOS_INVFIS_DET
+  4. FOLIOS_VENTAS
+  5. LIBRES_INVFIS
+  6. PERFILES_DIAS_INVENTARIO
+  7. PERFIL_DIAS_INV_ALMACENES
+  8. PERFIL_DIAS_INV_ARTICULOS
+  9. PERFIL_DIAS_INV_CLASIFICADORES
+  10. PERFIL_DIAS_INV_GRUPOS
+  11. PERFIL_DIAS_INV_LINEAS
+  12. SOL_FOLIOS_MANUFACTURA
+  13. TEMP_VENTAS_DESGL
+  14. UNIDADES_VENTA
+
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+═
+
+✅ BÚSQUEDA COMPLETADA
+

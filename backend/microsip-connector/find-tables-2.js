@@ -1,0 +1,53 @@
+const Firebird = require('node-firebird');
+require('dotenv').config();
+
+const options = {
+    host: process.env.FIREBIRD_HOST || '192.65.134.78',
+    port: parseInt(process.env.FIREBIRD_PORT || '3050'),
+    database: process.env.FIREBIRD_DATABASE || 'C:\\Microsip datos\\EMBLER.FDB',
+    user: process.env.FIREBIRD_USER || 'SYSDBA',
+    password: process.env.FIREBIRD_PASSWORD || 'masterkey',
+    lowercase_keys: false,
+    role: null,
+    pageSize: 4096
+};
+
+async function main() {
+    Firebird.attach(options, (err, db) => {
+        if (err) {
+            console.error(err);
+            process.exit(1);
+        }
+
+        const sql = `
+      SELECT RDB$RELATION_NAME as NAME
+      FROM RDB$RELATIONS
+      WHERE RDB$SYSTEM_FLAG = 0 
+      AND RDB$RELATION_TYPE = 0
+      ORDER BY RDB$RELATION_NAME
+    `;
+
+        db.query(sql, (err, result) => {
+            if (err) {
+                console.error(err);
+                db.detach();
+                process.exit(1);
+            }
+
+            const tables = result.map(r => r.NAME.trim());
+
+            console.log('\n--- MATCHING "INV" ---');
+            tables.filter(t => t.includes('INV')).forEach(t => console.log(t));
+
+            console.log('\n--- MATCHING "DISP" ---');
+            tables.filter(t => t.includes('DISP')).forEach(t => console.log(t));
+
+            console.log('\n--- MATCHING "STOCK" ---');
+            tables.filter(t => t.includes('STOCK')).forEach(t => console.log(t));
+
+            db.detach();
+        });
+    });
+}
+
+main();

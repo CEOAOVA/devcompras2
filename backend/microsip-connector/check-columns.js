@@ -34,9 +34,15 @@ async function main() {
             process.exit(1);
         }
 
-        console.log('--- SALDOS_IN COLUMNS ---');
-        const saldosCols = await getFields(db, 'SALDOS_IN');
-        console.log(saldosCols.join(', '));
+        // Check CONCEPTOS_IN columns
+        console.log('--- CONCEPTOS_IN COLUMNS ---');
+        const concCols = await getFields(db, 'CONCEPTOS_IN');
+        console.log(concCols.join(', '));
+
+        // Check DOCTOS_PV_DET columns
+        console.log('--- DOCTOS_PV_DET COLUMNS ---');
+        const cols = await getFields(db, 'DOCTOS_PV_DET');
+        console.log(cols.join(', '));
 
         db.detach();
     });

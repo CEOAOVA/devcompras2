@@ -12,17 +12,17 @@ const options = {
     pageSize: 4096
 };
 
-async function getFields(db, tableName) {
+async function getParams(db, procName) {
     const sql = `
-    SELECT RF.RDB$FIELD_NAME as CAMPO
-    FROM RDB$RELATION_FIELDS RF
-    WHERE RF.RDB$RELATION_NAME = '${tableName}'
-    ORDER BY RF.RDB$FIELD_POSITION
+    SELECT RDB$PARAMETER_NAME as PARAM, RDB$PARAMETER_TYPE as TYPE
+    FROM RDB$PROCEDURE_PARAMETERS
+    WHERE RDB$PROCEDURE_NAME = '${procName}'
+    ORDER BY RDB$PARAMETER_NUMBER
   `;
     return new Promise((resolve, reject) => {
         db.query(sql, (err, result) => {
             if (err) resolve([]);
-            else resolve(result.map(r => r.CAMPO.trim()));
+            else resolve(result.map(r => `${r.PARAM.trim()} (${r.TYPE === 0 ? 'IN' : 'OUT'})`));
         });
     });
 }
@@ -34,9 +34,13 @@ async function main() {
             process.exit(1);
         }
 
-        console.log('--- SALDOS_IN COLUMNS ---');
-        const saldosCols = await getFields(db, 'SALDOS_IN');
-        console.log(saldosCols.join(', '));
+        console.log('--- SOL_EXIS_VALOR_INV ---');
+        const p1 = await getParams(db, 'SOL_EXIS_VALOR_INV');
+        console.log(p1.join(', '));
+
+        console.log('\n--- SOL_REPORTE_EXIST ---');
+        const p2 = await getParams(db, 'SOL_REPORTE_EXIST');
+        console.log(p2.join(', '));
 
         db.detach();
     });

@@ -1,0 +1,122 @@
+
+╔════════════════════════════════════════════════════════╗
+║  ETL: MICROSIP → SUPABASE                              ║
+╚════════════════════════════════════════════════════════╝
+
+📋 Sincronización completa (ventas últimos 1 días)
+
+
+🚀 [ETL] Iniciando sincronización COMPLETA Microsip → Supabase
+
+
+═══════════════════════════════════════════════════════
+🔄 [ETL] Sincronizando categorías desde Microsip...
+📊 Encontradas 22 categorías en Microsip
+✅ [ETL] Categorías sincronizadas: 22 insertadas
+
+═══════════════════════════════════════════════════════
+🔄 [ETL] Sincronizando tiendas desde Microsip...
+🏪 Encontradas 21 tiendas en Microsip
+✅ [ETL] Tiendas sincronizadas: 21 insertadas
+
+═══════════════════════════════════════════════════════
+🔄 [ETL] Sincronizando productos desde Microsip...
+📦 Encontrados 10715 productos en Microsip
+📊 Procesados 500 / 10715 productos
+📊 Procesados 1000 / 10715 productos
+📊 Procesados 1500 / 10715 productos
+📊 Procesados 2000 / 10715 productos
+📊 Procesados 2500 / 10715 productos
+📊 Procesados 3000 / 10715 productos
+📊 Procesados 3500 / 10715 productos
+📊 Procesados 4000 / 10715 productos
+📊 Procesados 4500 / 10715 productos
+📊 Procesados 5000 / 10715 productos
+📊 Procesados 5500 / 10715 productos
+📊 Procesados 6000 / 10715 productos
+📊 Procesados 6500 / 10715 productos
+📊 Procesados 7000 / 10715 productos
+📊 Procesados 7500 / 10715 productos
+📊 Procesados 8000 / 10715 productos
+📊 Procesados 8500 / 10715 productos
+📊 Procesados 9000 / 10715 productos
+📊 Procesados 9500 / 10715 productos
+📊 Procesados 10000 / 10715 productos
+📊 Procesados 10500 / 10715 productos
+✅ [ETL] Productos sincronizados: 10715 OK, 0 errores
+
+═══════════════════════════════════════════════════════
+🔄 [ETL] Sincronizando precios desde Microsip...
+💰 Encontrados 9064 precios en Microsip
+📊 Procesados 1000 / 9064 precios
+📊 Procesados 2000 / 9064 precios
+📊 Procesados 3000 / 9064 precios
+📊 Procesados 4000 / 9064 precios
+📊 Procesados 5000 / 9064 precios
+📊 Procesados 6000 / 9064 precios
+📊 Procesados 7000 / 9064 precios
+📊 Procesados 8000 / 9064 precios
+📊 Procesados 9000 / 9064 precios
+✅ [ETL] Precios sincronizados: 9064 OK, 0 errores
+
+═══════════════════════════════════════════════════════
+🔄 [ETL] Sincronizando ventas desde 2025-11-25 hasta 2025-11-26...
+   📅 Procesando chunk: 2025-11-25 al 2025-11-26
+❌ Error ejecutando query: Error: Dynamic SQL Error, SQL error code = -206, Column unknown, DET.PCTJE_IMPUESTO, At line 20, column 11
+    at doCallback (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/callback.js:23:21)
+    at /home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:172:21
+    at loop (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:229:33)
+    at parseOpResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:515:29)
+    at loop (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:227:33)
+    at parseOpResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:515:29)
+    at decodeResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:237:24)
+    at Socket.<anonymous> (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:149:13)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12) {
+  gdscode: 335544569,
+  gdsparams: undefined
+}
+❌ [ETL] Error al sincronizar ventas: Error: Dynamic SQL Error, SQL error code = -206, Column unknown, DET.PCTJE_IMPUESTO, At line 20, column 11
+    at doCallback (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/callback.js:23:21)
+    at /home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:172:21
+    at loop (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:229:33)
+    at parseOpResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:515:29)
+    at loop (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:227:33)
+    at parseOpResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:515:29)
+    at decodeResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:237:24)
+    at Socket.<anonymous> (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:149:13)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12) {
+  gdscode: 335544569,
+  gdsparams: undefined
+}
+❌ [ETL] Error en sincronización completa: Error: Dynamic SQL Error, SQL error code = -206, Column unknown, DET.PCTJE_IMPUESTO, At line 20, column 11
+    at doCallback (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/callback.js:23:21)
+    at /home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:172:21
+    at loop (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:229:33)
+    at parseOpResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:515:29)
+    at loop (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:227:33)
+    at parseOpResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:515:29)
+    at decodeResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:237:24)
+    at Socket.<anonymous> (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:149:13)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12) {
+  gdscode: 335544569,
+  gdsparams: undefined
+}
+
+❌ Error durante la sincronización:
+   Dynamic SQL Error, SQL error code = -206, Column unknown, DET.PCTJE_IMPUESTO, At line 20, column 11
+
+Stack trace:
+Error: Dynamic SQL Error, SQL error code = -206, Column unknown, DET.PCTJE_IMPUESTO, At line 20, column 11
+    at doCallback (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/callback.js:23:21)
+    at /home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:172:21
+    at loop (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:229:33)
+    at parseOpResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:515:29)
+    at loop (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:227:33)
+    at parseOpResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:515:29)
+    at decodeResponse (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:237:24)
+    at Socket.<anonymous> (/home/sgamborino/Documents/source/aova/devcompras2/node_modules/node-firebird/lib/wire/connection.js:149:13)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)

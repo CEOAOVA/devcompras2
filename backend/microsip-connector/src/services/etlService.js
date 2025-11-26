@@ -278,7 +278,7 @@ async function syncPrecios() {
         pa.PRECIO,
         pa.MONEDA_ID,
         pa.MARGEN
-      FROM PRECIOS_ART pa
+      FROM PRECIOS_ARTICULOS pa
       LEFT JOIN PRECIOS_EMPRESA lp ON pa.PRECIO_EMPRESA_ID = lp.PRECIO_EMPRESA_ID
       ORDER BY pa.ARTICULO_ID, pa.PRECIO_EMPRESA_ID
     `;
@@ -407,114 +407,133 @@ async function syncVentas(fechaInicio, fechaFin) {
   try {
     console.log(`🔄 [ETL] Sincronizando ventas desde ${fechaInicio} hasta ${fechaFin}...`);
 
-    const sql = `
-      SELECT
-        pv.DOCTO_PV_ID,
-        pv.FOLIO as TICKET_ID,
-        pv.FECHA,
-        pv.SUCURSAL_ID as TIENDA_ID,
-        pv.CLIENTE_ID,
-        pv.VENDEDOR_ID,
-        pv.ALMACEN_ID,
+    let currentDate = new Date(fechaInicio);
+    const endDate = new Date(fechaFin);
+    let totalInserted = 0;
+    let totalFailed = 0;
+    let totalRecords = 0;
 
-        det.DOCTO_PV_DET_ID,
-        det.ARTICULO_ID,
-        det.CLAVE_ARTICULO as SKU,
-        det.UNIDADES as CANTIDAD,
-        det.UNIDADES_DEV as CANTIDAD_DEVUELTA,
-        det.PRECIO_UNITARIO,
-        det.PRECIO_UNITARIO_IMPTO as PRECIO_CON_IVA,
-        det.IMPUESTO_POR_UNIDAD as IMPUESTO,
-        det.PRECIO_TOTAL_NETO as TOTAL_PARTIDA,
+    while (currentDate <= endDate) {
+      // Calcular fin del chunk (fin de mes o fechaFin)
+      const chunkStart = currentDate.toISOString().split('T')[0];
 
-        (det.UNIDADES - COALESCE(det.UNIDADES_DEV, 0)) as CANTIDAD_NETA
+      // Mejor lógica:
+      // Inicio del chunk: currentDate
+      // Fin del chunk: Último día de este mes O fechaFin, lo que ocurra primero.
+      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      const chunkEnd = (lastDayOfMonth < endDate ? lastDayOfMonth : endDate).toISOString().split('T')[0];
 
-      FROM DOCTOS_PV pv
-      INNER JOIN DOCTOS_PV_DET det ON pv.DOCTO_PV_ID = det.DOCTO_PV_ID
+      console.log(`   📅 Procesando chunk: ${chunkStart} al ${chunkEnd}`);
 
-      WHERE pv.FECHA BETWEEN '${fechaInicio}' AND '${fechaFin}'
-        AND pv.FECHA_HORA_CANCELACION IS NULL
+      const sql = `
+        SELECT
+          d.DOCTO_PV_ID,
+          d.FOLIO as TICKET_ID,
+          d.FECHA,
+          d.SUCURSAL_ID as TIENDA_ID,
+          d.CLIENTE_ID,
+          d.ALMACEN_ID,
+          d.VENDEDOR_ID,
+          
+          det.DOCTO_PV_DET_ID,
+          det.ARTICULO_ID,
+          det.CLAVE_ARTICULO as SKU,
+          det.UNIDADES as CANTIDAD,
+          det.UNIDADES_DEV as CANTIDAD_DEVUELTA,
+          (det.UNIDADES - COALESCE(det.UNIDADES_DEV, 0)) as CANTIDAD_NETA,
+          
+          det.PRECIO_UNITARIO,
+          det.PRECIO_TOTAL_NETO as PRECIO_CON_IVA,
+          det.IMPUESTO_POR_UNIDAD as IMPUESTO,
+          det.PRECIO_TOTAL_NETO as TOTAL_PARTIDA
 
-      ORDER BY pv.FECHA DESC, pv.FOLIO DESC
-    `;
+        FROM DOCTOS_PV d
+        INNER JOIN DOCTOS_PV_DET det ON d.DOCTO_PV_ID = det.DOCTO_PV_ID
+        WHERE d.FECHA BETWEEN '${chunkStart}' AND '${chunkEnd}'
+          AND d.TIPO_DOCTO = 'V' -- Solo ventas
+          AND d.ESTATUS != 'C'   -- No cancelados
+        ORDER BY d.FECHA, d.FOLIO
+      `;
 
-    const startTime = Date.now();
-    const ventas = await firebird.queryAsync(sql);
-    const queryTime = Date.now() - startTime;
+      const startTime = Date.now();
+      const ventas = await firebird.queryAsync(sql);
+      const queryTime = Date.now() - startTime;
 
-    console.log(`📊 Encontradas ${ventas.length} partidas de venta en ${queryTime}ms`);
+      console.log(`      Found ${ventas.length} records in ${queryTime}ms`);
+      totalRecords += ventas.length;
 
-    let inserted = 0;
-    let failed = 0;
-    const batchSize = 500;
+      let inserted = 0;
+      let failed = 0;
+      const batchSize = 500;
 
-    for (let i = 0; i < ventas.length; i += batchSize) {
-      const batch = ventas.slice(i, i + batchSize);
+      for (let i = 0; i < ventas.length; i += batchSize) {
+        const batch = ventas.slice(i, i + batchSize);
 
-      const records = batch.map(v => {
-        const fecha = new Date(v.FECHA);
+        const records = batch.map(v => {
+          const fecha = new Date(v.FECHA);
 
-        return {
-          docto_pv_id: v.DOCTO_PV_ID,
-          docto_pv_det_id: v.DOCTO_PV_DET_ID,
+          return {
+            docto_pv_id: v.DOCTO_PV_ID,
+            docto_pv_det_id: v.DOCTO_PV_DET_ID,
 
-          fecha: v.FECHA,
-          ano: fecha.getFullYear(),
-          mes: fecha.getMonth() + 1,
-          dia: fecha.getDate(),
-          semana: getWeekNumber(fecha),
+            fecha: v.FECHA,
+            ano: fecha.getFullYear(),
+            mes: fecha.getMonth() + 1,
+            dia: fecha.getDate(),
+            semana: getWeekNumber(fecha),
 
-          tienda_id: v.TIENDA_ID,
-          articulo_id: v.ARTICULO_ID,
-          sku: v.SKU ? String(v.SKU).trim() : null,
-          ticket_id: v.TICKET_ID ? String(v.TICKET_ID).trim() : null,
-          cliente_id: v.CLIENTE_ID || null,
-          vendedor_id: v.VENDEDOR_ID ? String(v.VENDEDOR_ID).trim() : null,
-          almacen_id: v.ALMACEN_ID || null,
+            tienda_id: v.TIENDA_ID,
+            articulo_id: v.ARTICULO_ID,
+            sku: v.SKU ? String(v.SKU).trim() : null,
+            ticket_id: v.TICKET_ID ? String(v.TICKET_ID).trim() : null,
+            cliente_id: v.CLIENTE_ID || null,
+            vendedor_id: v.VENDEDOR_ID ? String(v.VENDEDOR_ID).trim() : null,
+            almacen_id: v.ALMACEN_ID || null,
 
-          cantidad: Number(v.CANTIDAD),
-          cantidad_devuelta: Number(v.CANTIDAD_DEVUELTA) || 0,
-          cantidad_neta: Number(v.CANTIDAD_NETA),
+            cantidad: Number(v.CANTIDAD),
+            cantidad_devuelta: Number(v.CANTIDAD_DEVUELTA) || 0,
+            cantidad_neta: Number(v.CANTIDAD_NETA),
 
-          precio_unitario: Number(v.PRECIO_UNITARIO),
-          precio_con_iva: Number(v.PRECIO_CON_IVA),
-          impuesto: Number(v.IMPUESTO),
-          total_partida: Number(v.TOTAL_PARTIDA),
+            precio_unitario: Number(v.PRECIO_UNITARIO),
+            precio_con_iva: Number(v.PRECIO_CON_IVA),
+            impuesto: Number(v.IMPUESTO),
+            total_partida: Number(v.TOTAL_PARTIDA),
 
-          // Campos opcionales (calcular después si es necesario)
-          costo_unitario: 0,
-          margen_unitario: 0,
-          margen_total: 0
-        };
-      });
+            costo_unitario: 0,
+            margen_unitario: 0,
+            margen_total: 0
+          };
+        });
 
-      const { error } = await supabase
-        .schema('devcompras')
-        .from('doctos_pv_det')
-        .upsert(records, { onConflict: 'docto_pv_id,docto_pv_det_id' });
+        const { error } = await supabase
+          .schema('devcompras')
+          .from('doctos_pv_det')
+          .upsert(records, { onConflict: 'docto_pv_id,docto_pv_det_id' });
 
-      if (error) {
-        console.error(`❌ Error en batch ${i}-${i + batchSize}:`, error.message);
-        failed += batch.length;
-      } else {
-        inserted += batch.length;
+        if (error) {
+          console.error(`❌ Error en batch ${i}-${i + batchSize}:`, error.message);
+          failed += batch.length;
+        } else {
+          inserted += batch.length;
+        }
       }
 
-      // Log progress cada 1000 registros
-      if ((i + batchSize) % 1000 === 0) {
-        console.log(`📊 Procesados ${i + batchSize} / ${ventas.length} registros de venta`);
-      }
+      totalInserted += inserted;
+      totalFailed += failed;
+
+      // Avanzar al primer día del siguiente mes
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
     }
 
     await completeSyncLog(logId, {
-      records_processed: ventas.length,
-      records_inserted: inserted,
-      records_failed: failed
+      records_processed: totalRecords,
+      records_inserted: totalInserted,
+      records_failed: totalFailed
     });
 
-    console.log(`✅ [ETL] Ventas sincronizadas: ${inserted} OK, ${failed} errores`);
+    console.log(`✅ [ETL] Ventas sincronizadas: ${totalInserted} OK, ${totalFailed} errores`);
 
-    return { success: true, inserted, failed, total: ventas.length };
+    return { success: true, inserted: totalInserted, failed: totalFailed, total: totalRecords };
 
   } catch (error) {
     console.error('❌ [ETL] Error al sincronizar ventas:', error);
@@ -533,104 +552,118 @@ async function syncInventarioMovimientos(fechaInicio, fechaFin) {
   try {
     console.log(`🔄 [ETL] Sincronizando movimientos de inventario desde ${fechaInicio} hasta ${fechaFin}...`);
 
-    const sql = `
-      SELECT
-        di.DOCTO_IN_ID,
-        di.FOLIO,
-        di.FECHA,
-        di.SUCURSAL_ID as TIENDA_ID,
-        di.ALMACEN_ID,
-        di.CONCEPTO_IN_ID,
-        c.NOMBRE as CONCEPTO_MOVIMIENTO,
-        c.TIPO_MOVTO, -- 'E'ntrada, 'S'alida, etc.
+    let currentDate = new Date(fechaInicio);
+    const endDate = new Date(fechaFin);
+    let totalInserted = 0;
+    let totalFailed = 0;
+    let totalRecords = 0;
 
-        did.DOCTO_IN_DET_ID,
-        did.ARTICULO_ID,
-        did.CLAVE_ARTICULO as SKU,
-        did.UNIDADES as CANTIDAD,
-        did.COSTO_UNITARIO,
-        did.COSTO_TOTAL
+    while (currentDate <= endDate) {
+      const chunkStart = currentDate.toISOString().split('T')[0];
+      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      const chunkEnd = (lastDayOfMonth < endDate ? lastDayOfMonth : endDate).toISOString().split('T')[0];
 
-      FROM DOCTOS_IN di
-      INNER JOIN DOCTOS_IN_DET did ON di.DOCTO_IN_ID = did.DOCTO_IN_ID
-      LEFT JOIN CONCEPTOS_IN c ON di.CONCEPTO_IN_ID = c.CONCEPTO_IN_ID
+      console.log(`   📅 Procesando chunk: ${chunkStart} al ${chunkEnd}`);
 
-      WHERE di.FECHA BETWEEN '${fechaInicio}' AND '${fechaFin}'
-        AND di.CANCELADO = 'N'
+      const sql = `
+        SELECT
+          di.DOCTO_IN_ID,
+          di.FOLIO,
+          di.FECHA,
+          di.SUCURSAL_ID as TIENDA_ID,
+          di.ALMACEN_ID,
+          di.CONCEPTO_IN_ID,
+          c.NOMBRE as CONCEPTO_MOVIMIENTO,
+          c.NATURALEZA, -- 'E'ntrada, 'S'alida
 
-      ORDER BY di.FECHA DESC, di.FOLIO DESC
-    `;
+          did.DOCTO_IN_DET_ID,
+          did.ARTICULO_ID,
+          did.CLAVE_ARTICULO as SKU,
+          did.UNIDADES as CANTIDAD,
+          did.COSTO_UNITARIO,
+          did.COSTO_TOTAL
 
-    const startTime = Date.now();
-    const movimientos = await firebird.queryAsync(sql);
-    const queryTime = Date.now() - startTime;
+        FROM DOCTOS_IN di
+        INNER JOIN DOCTOS_IN_DET did ON di.DOCTO_IN_ID = did.DOCTO_IN_ID
+        LEFT JOIN CONCEPTOS_IN c ON di.CONCEPTO_IN_ID = c.CONCEPTO_IN_ID
 
-    console.log(`📊 Encontrados ${movimientos.length} movimientos en ${queryTime}ms`);
+        WHERE di.FECHA BETWEEN '${chunkStart}' AND '${chunkEnd}'
+          AND di.CANCELADO = 'N'
 
-    let inserted = 0;
-    let failed = 0;
-    const batchSize = 500;
+        ORDER BY di.FECHA DESC, di.FOLIO DESC
+      `;
 
-    for (let i = 0; i < movimientos.length; i += batchSize) {
-      const batch = movimientos.slice(i, i + batchSize);
+      const startTime = Date.now();
+      const movimientos = await firebird.queryAsync(sql);
+      const queryTime = Date.now() - startTime;
 
-      const records = batch.map(m => {
-        const fecha = new Date(m.FECHA);
-        let tipoMovimiento = 'OTRO';
-        if (m.TIPO_MOVTO === 'E') tipoMovimiento = 'ENTRADA';
-        if (m.TIPO_MOVTO === 'S') tipoMovimiento = 'SALIDA';
-        if (m.TIPO_MOVTO === 'T') tipoMovimiento = 'TRASPASO';
-        if (m.TIPO_MOVTO === 'A') tipoMovimiento = 'AJUSTE'; // Asumiendo 'A'
+      console.log(`      Found ${movimientos.length} records in ${queryTime}ms`);
+      totalRecords += movimientos.length;
 
-        return {
-          docto_in_id: m.DOCTO_IN_ID,
-          docto_in_det_id: m.DOCTO_IN_DET_ID,
+      let inserted = 0;
+      let failed = 0;
+      const batchSize = 500;
 
-          fecha: m.FECHA,
-          ano: fecha.getFullYear(),
-          mes: fecha.getMonth() + 1,
+      for (let i = 0; i < movimientos.length; i += batchSize) {
+        const batch = movimientos.slice(i, i + batchSize);
 
-          tienda_id: m.TIENDA_ID,
-          almacen_id: m.ALMACEN_ID,
-          articulo_id: m.ARTICULO_ID,
-          sku: m.SKU ? String(m.SKU).trim() : null,
+        const records = batch.map(m => {
+          const fecha = new Date(m.FECHA);
+          let tipoMovimiento = 'OTRO';
+          if (m.NATURALEZA === 'E') tipoMovimiento = 'ENTRADA';
+          if (m.NATURALEZA === 'S') tipoMovimiento = 'SALIDA';
 
-          tipo_movimiento: tipoMovimiento,
-          concepto_movimiento: m.CONCEPTO_MOVIMIENTO?.trim() || null,
-          folio: m.FOLIO ? String(m.FOLIO).trim() : null,
+          return {
+            docto_in_id: m.DOCTO_IN_ID,
+            docto_in_det_id: m.DOCTO_IN_DET_ID,
 
-          cantidad: Number(m.CANTIDAD),
-          costo_unitario: Number(m.COSTO_UNITARIO) || 0,
-          costo_total: Number(m.COSTO_TOTAL) || 0
-        };
-      });
+            fecha: m.FECHA,
+            ano: fecha.getFullYear(),
+            mes: fecha.getMonth() + 1,
 
-      const { error } = await supabase
-        .schema('devcompras')
-        .from('doctos_in_det')
-        .upsert(records, { onConflict: 'docto_in_id,docto_in_det_id' });
+            tienda_id: m.TIENDA_ID,
+            almacen_id: m.ALMACEN_ID,
+            articulo_id: m.ARTICULO_ID,
+            sku: m.SKU ? String(m.SKU).trim() : null,
 
-      if (error) {
-        console.error(`❌ Error en batch ${i}-${i + batchSize}:`, error.message);
-        failed += batch.length;
-      } else {
-        inserted += batch.length;
+            tipo_movimiento: tipoMovimiento,
+            concepto_movimiento: m.CONCEPTO_MOVIMIENTO?.trim() || null,
+            folio: m.FOLIO ? String(m.FOLIO).trim() : null,
+
+            cantidad: Number(m.CANTIDAD),
+            costo_unitario: Number(m.COSTO_UNITARIO) || 0,
+            costo_total: Number(m.COSTO_TOTAL) || 0
+          };
+        });
+
+        const { error } = await supabase
+          .schema('devcompras')
+          .from('doctos_in_det')
+          .upsert(records, { onConflict: 'docto_in_id,docto_in_det_id' });
+
+        if (error) {
+          console.error(`❌ Error en batch ${i}-${i + batchSize}:`, error.message);
+          failed += batch.length;
+        } else {
+          inserted += batch.length;
+        }
       }
 
-      if ((i + batchSize) % 1000 === 0) {
-        console.log(`📊 Procesados ${i + batchSize} / ${movimientos.length} movimientos`);
-      }
+      totalInserted += inserted;
+      totalFailed += failed;
+
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
     }
 
     await completeSyncLog(logId, {
-      records_processed: movimientos.length,
-      records_inserted: inserted,
-      records_failed: failed
+      records_processed: totalRecords,
+      records_inserted: totalInserted,
+      records_failed: totalFailed
     });
 
-    console.log(`✅ [ETL] Movimientos sincronizados: ${inserted} OK, ${failed} errores`);
+    console.log(`✅ [ETL] Movimientos sincronizados: ${totalInserted} OK, ${totalFailed} errores`);
 
-    return { success: true, inserted, failed, total: movimientos.length };
+    return { success: true, inserted: totalInserted, failed: totalFailed, total: totalRecords };
 
   } catch (error) {
     console.error('❌ [ETL] Error al sincronizar movimientos:', error);
@@ -649,21 +682,20 @@ async function syncInventarioActual() {
   try {
     console.log('🔄 [ETL] Calculando inventario actual desde Microsip...');
 
+    // 1. Calcular inventario actual sumando movimientos históricos (SALDOS_IN)
+    // Microsip almacena saldos por mes, así que sumamos todo para obtener el stock actual.
     const sql = `
       SELECT
-        ex.SUCURSAL_ID as TIENDA_ID,
-        ex.ALMACEN_ID,
-        ex.ARTICULO_ID,
-        art.CLAVE_ARTICULO as SKU,
-        ex.EXISTENCIA,
-        ex.EXISTENCIA_COMPROMETIDA,
-        (ex.EXISTENCIA - COALESCE(ex.EXISTENCIA_COMPROMETIDA, 0)) as EXISTENCIA_DISPONIBLE,
-        art.COSTO_PROMEDIO,
-        (ex.EXISTENCIA * art.COSTO_PROMEDIO) as VALOR_INVENTARIO
-      FROM EXISTENCIAS ex
-      INNER JOIN ARTICULOS art ON ex.ARTICULO_ID = art.ARTICULO_ID
-      WHERE ex.EXISTENCIA > 0
-      ORDER BY ex.SUCURSAL_ID, ex.ARTICULO_ID
+        s.ALMACEN_ID,
+        s.ARTICULO_ID,
+        SUM(s.ENTRADAS_UNIDADES - s.SALIDAS_UNIDADES) as EXISTENCIA,
+        0 as COSTO_PROMEDIO,
+        0 as VALOR_INVENTARIO
+      FROM SALDOS_IN s
+      INNER JOIN ARTICULOS art ON s.ARTICULO_ID = art.ARTICULO_ID
+      LEFT JOIN CLAVES_ARTICULOS ca ON s.ARTICULO_ID = ca.ARTICULO_ID AND ca.ROL_CLAVE_ART_ID = 17
+      GROUP BY s.ALMACEN_ID, s.ARTICULO_ID, ca.CLAVE_ARTICULO
+      HAVING SUM(s.ENTRADAS_UNIDADES - s.SALIDAS_UNIDADES) > 0
     `;
 
     const existencias = await firebird.queryAsync(sql);
@@ -717,10 +749,13 @@ async function syncInventarioActual() {
       const batch = existencias.slice(i, i + batchSize);
 
       const records = batch.map(ex => {
-        const key = `${ex.TIENDA_ID}_${ex.ARTICULO_ID}`;
+        // Asignar tienda_id = '0' (Dummy) ya que no tenemos mapeo directo Almacen -> Sucursal
+        const tiendaId = '0';
+
+        const key = `${tiendaId}_${ex.ARTICULO_ID}`;
         const ventas30 = ventasMap30d[key] || 0;
         const ventas90 = ventasMap90d[key] || 0;
-        const existencia = Number(ex.EXISTENCIA_DISPONIBLE) || 0;
+        const existencia = Number(ex.EXISTENCIA) || 0;
 
         // Calcular días de inventario: (Existencia / Ventas diarias promedio)
         const ventasDiariasPromedio = ventas30 / 30;
@@ -731,13 +766,13 @@ async function syncInventarioActual() {
         const rotacionAnual = existencia > 0 ? Number((ventasAnualesEstimadas / existencia).toFixed(2)) : 0;
 
         return {
-          tienda_id: ex.TIENDA_ID,
+          tienda_id: tiendaId,
           almacen_id: ex.ALMACEN_ID,
           articulo_id: ex.ARTICULO_ID,
           sku: ex.SKU?.trim() || null,
 
-          existencia: Number(ex.EXISTENCIA),
-          existencia_comprometida: Number(ex.EXISTENCIA_COMPROMETIDA) || 0,
+          existencia: existencia,
+          existencia_comprometida: 0,
           existencia_disponible: existencia,
           costo_promedio: Number(ex.COSTO_PROMEDIO) || 0,
           valor_inventario: Number(ex.VALOR_INVENTARIO) || 0,
